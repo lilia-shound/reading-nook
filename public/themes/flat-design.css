@@ -1,0 +1,308 @@
+/**
+ * 共读小屋 · 主题：扁平化 (Flat Design)
+ *
+ * 参考：_reference/ui/flat-design-components.html
+ *
+ * 扁平化是拟物化的"反叛"——它的四条铁律：
+ *   1. 零阴影 —— 这套风格最硬的一条：--shadow / --shadow-sm 给 none，
+ *      深度感一律不靠投影，靠底色块和 1px 边框
+ *   2. 纯色块 —— 蓝 #3498DB / 红 #E74C3C / 绿 #2ECC71 / 橙 #F39C12 / 紫 #9B59B6，
+ *      直接平铺，不做渐变、不做纹理
+ *   3. 二维 —— 没有拟物的斜面、倒角、高光，圆角适中（8-12px）
+ *   4. 内容本身 —— 装饰让位给字，色块只用来分区
+ *
+ * 跟 Minimalism 的区别：flat 有鲜明彩色块和明确边框，minimal 什么都不加。
+ *
+ * 夜间档：把彩色块调暗一档保住可读性，正文不用纯白（#E8ECF1）。
+ * 字体全部走系统栈，零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   扁平化 / 白天
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"][data-mode="day"] {
+  --bg: #F0F3F7;
+  --bg-2: #FFFFFF;
+  --paper: #FFFFFF;
+  --ink: #2C3E50;
+  --ink-soft: #7F8C8D;
+  --line: #D5DCE6;
+  --accent: #3498DB;
+  --on-accent: #FFFFFF;
+  --hl-mine: #3498DB;
+  --hl-ai: #9B59B6;
+  --bub-mine: #EAF4FC;
+  --bub-ai: #F3ECFA;
+  --text-color: #2C3E50;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: none;
+  --shadow-sm: none;
+  --font-serif: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --danger: #E74C3C;
+  --deco:
+    linear-gradient(135deg, rgba(52, 152, 219, .07) 0 42%, transparent 42%),
+    linear-gradient(315deg, rgba(155, 89, 182, .06) 0 38%, transparent 38%);
+  --deco-size: 180px 180px, 220px 220px;
+}
+
+/* --------------------------------------------------------------------------
+   扁平化 / 夜间
+   彩色块调暗一档，正文不用纯白
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"][data-mode="night"] {
+  --bg: #1A2027;
+  --bg-2: #222B35;
+  --paper: #202832;
+  --ink: #E4E9EF;
+  --ink-soft: #8E9BAA;
+  --line: #33404E;
+  --accent: #4FA8E8;
+  --on-accent: #10161C;
+  --hl-mine: #2D6FA8;
+  --hl-ai: #6B4A9E;
+  --bub-mine: #24303C;
+  --bub-ai: #2A2637;
+  --text-color: #E4E9EF;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: none;
+  --shadow-sm: none;
+  --font-serif: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --danger: #E8705F;
+  --deco:
+    linear-gradient(135deg, rgba(79, 168, 232, .08) 0 42%, transparent 42%),
+    linear-gradient(315deg, rgba(140, 108, 210, .07) 0 38%, transparent 38%);
+  --deco-size: 180px 180px, 220px 220px;
+}
+
+/* --------------------------------------------------------------------------
+   零阴影 —— 这套风格的第一铁律，全局清一遍
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .login__card,
+body[data-theme="flat-design"] .book-card,
+body[data-theme="flat-design"] .shelf__hero,
+body[data-theme="flat-design"] .settings__group,
+body[data-theme="flat-design"] .stat,
+body[data-theme="flat-design"] .note-card,
+body[data-theme="flat-design"] .log-row,
+body[data-theme="flat-design"] .modal__box,
+body[data-theme="flat-design"] .anno-item,
+body[data-theme="flat-design"] .reader__content,
+body[data-theme="flat-design"] .sel-bar,
+body[data-theme="flat-design"] .topbar,
+body[data-theme="flat-design"] .reader__toolbar,
+body[data-theme="flat-design"] .reader__footer,
+body[data-theme="flat-design"] .toc,
+body[data-theme="flat-design"] .anno-panel,
+body[data-theme="flat-design"] .btn,
+body[data-theme="flat-design"] .icon-btn {
+  box-shadow: none !important;
+}
+
+/* 卡片：纯色底 + 1px 边，没有投影 */
+body[data-theme="flat-design"] .login__card,
+body[data-theme="flat-design"] .book-card,
+body[data-theme="flat-design"] .settings__group,
+body[data-theme="flat-design"] .stat,
+body[data-theme="flat-design"] .note-card,
+body[data-theme="flat-design"] .log-row,
+body[data-theme="flat-design"] .anno-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+}
+
+/* 封面：纯色块，不做拟物 */
+body[data-theme="flat-design"] .book-card__cover {
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  color: var(--accent);
+  font-size: 2rem;
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   按钮：实心色块（扁平化的标志）
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .btn,
+body[data-theme="flat-design"] .icon-btn,
+body[data-theme="flat-design"] .reader__back,
+body[data-theme="flat-design"] .toc__close,
+body[data-theme="flat-design"] .modal__close {
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: none;
+  transition: filter var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+
+body[data-theme="flat-design"] .btn:hover,
+body[data-theme="flat-design"] .icon-btn:hover {
+  filter: brightness(.96);
+  background: var(--bg-2);
+}
+
+body[data-theme="flat-design"] .btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+body[data-theme="flat-design"] .btn--ai {
+  background: var(--hl-ai);
+  border-color: var(--hl-ai);
+  color: #FFFFFF;
+}
+
+body[data-theme="flat-design"] .btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+body[data-theme="flat-design"] .btn--danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   分段控件：选中项是实心蓝块
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .seg {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+
+body[data-theme="flat-design"] .seg__item {
+  border-radius: 6px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+body[data-theme="flat-design"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   气泡：淡色块 + 同色左边条
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .bubble--mine {
+  background: var(--bub-mine);
+  border: 0;
+  border-left: 3px solid var(--hl-mine);
+  border-radius: var(--radius-sm);
+}
+
+body[data-theme="flat-design"] .bubble--ai {
+  background: var(--bub-ai);
+  border: 0;
+  border-left: 3px solid var(--hl-ai);
+  border-radius: var(--radius-sm);
+}
+
+body[data-theme="flat-design"] .bubble__name {
+  color: var(--ink-soft);
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+
+/* --------------------------------------------------------------------------
+   划线：荧光笔式的下划线带
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .hl--mine {
+  background-image: linear-gradient(transparent 55%, var(--hl-mine) 55%, var(--hl-mine) 90%, transparent 90%);
+  text-decoration-color: var(--hl-mine);
+}
+
+body[data-theme="flat-design"] .hl--ai {
+  background-image: linear-gradient(transparent 55%, var(--hl-ai) 55%, var(--hl-ai) 90%, transparent 90%);
+  text-decoration-color: var(--hl-ai);
+}
+
+/* --------------------------------------------------------------------------
+   输入框：1px 边，纯色底
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .field__input,
+body[data-theme="flat-design"] .field__textarea,
+body[data-theme="flat-design"] .login__input {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  box-shadow: none;
+}
+
+body[data-theme="flat-design"] .field__input:focus,
+body[data-theme="flat-design"] .field__textarea:focus,
+body[data-theme="flat-design"] .login__input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   空状态 / 上传区
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .empty,
+body[data-theme="flat-design"] .upload-drop {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   进度条：纯色条
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .progress-bar {
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+body[data-theme="flat-design"] .progress-bar__fill {
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+/* --------------------------------------------------------------------------
+   阅读纸面：白纸一块，边框很轻
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .reader__content {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: 32px 30px 38px;
+}
+
+body[data-theme="flat-design"] .reader__body {
+  background-color: var(--bg);
+}
+
+/* --------------------------------------------------------------------------
+   小圆点
+   -------------------------------------------------------------------------- */
+body[data-theme="flat-design"] .swatch,
+body[data-theme="flat-design"] .theme-card__chip {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+body[data-theme="flat-design"] .swatch--active,
+body[data-theme="flat-design"] .theme-card--active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

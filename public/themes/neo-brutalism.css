@@ -1,0 +1,761 @@
+/**
+ * 共读小屋 · 主题：新粗野主义 (Neo-Brutalism)
+ *
+ * 参考：_reference/ui/neo-brutalism-components.html
+ *
+ * 这套皮肤不装精致，只装力量：粗黑边、硬阴影、900 字重、饱和撞色，
+ * 像一张贴出来的海报。四条铁律：
+ *   1. 零模糊硬阴影 —— 固定偏移、纯色，绝不出现 blur；
+ *      竖向偏移只有 8 / 6 / 4 / 3 / 1 五个档，横向另有 8px / 4px 两档（抽屉、底栏用）
+ *   2. 粗黑实线 —— 描边至少 2px（大件 3~4px），白天纯黑、夜间纯白，不灰、不半透明
+ *   3. 字重拉到 900 —— 标题、按钮、统计数字都是海报级的重字
+ *   4. 撞色 —— 奶油白底 + 珊瑚红强调 + 深蓝黑字，饱和度拉满，不许闷色
+ *
+ * 圆角 12px / 8px（不是包豪斯的 2px 直角），阴影偏移也比包豪斯大一档，
+ * 两套皮肤一眼能分开。
+ *
+ * 夜间档：深蓝黑底 + 白线 + 白硬阴影，像反印的海报；强调色换成明黄 #FFE66D，
+ * 硬阴影全部翻成纯白 —— 这是新粗野主义夜间最地道的做法。
+ * 字体全部走系统栈，零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   新粗野主义 / 白天
+   奶油白底 #FFFDF7 + 纯白面 + 珊瑚红强调 + 深蓝黑字
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"][data-mode="day"] {
+  --bg: #FFFDF7;
+  --bg-2: #FFFFFF;
+  --paper: #FFFFFF;
+  --ink: #1A1A2E;
+  --ink-soft: #555555;
+  --line: #000000;
+  --accent: #FF6B6B;
+  --on-accent: #1A1A2E;
+  --hl-mine: #FFE66D;
+  --hl-ai: #4ECDC4;
+  --bub-mine: #FFE66D;
+  --bub-ai: #4ECDC4;
+  --text-color: #1A1A2E;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 8px 8px 0 #000000;
+  --shadow-sm: 4px 4px 0 #000000;
+  --font-serif: "Inter", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  --danger: #D62828;
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Crect x='16' y='16' width='60' height='60' fill='%23FF6B6B' fill-opacity='.16'/%3E%3Ccircle cx='188' cy='54' r='28' fill='%23FFE66D' fill-opacity='.28'/%3E%3Crect x='152' y='158' width='54' height='54' fill='%234ECDC4' fill-opacity='.16'/%3E%3Cpath d='M16 216 L74 150' stroke='%231A1A2E' stroke-width='9' stroke-opacity='.08'/%3E%3C/svg%3E"),
+    linear-gradient(rgba(26, 26, 46, .055) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(26, 26, 46, .055) 2px, transparent 2px);
+  --deco-size: 240px 240px, 48px 48px, 48px 48px;
+}
+
+/* --------------------------------------------------------------------------
+   新粗野主义 / 夜间
+   深蓝黑底 + 白线 + 白硬阴影；强调色换明黄，在深底上才够跳
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"][data-mode="night"] {
+  --bg: #0D0D1A;
+  --bg-2: #1A1A2E;
+  --paper: #24243C;
+  --ink: #FFFFFF;
+  --ink-soft: #A9A9C4;
+  --line: #FFFFFF;
+  --accent: #FFE66D;
+  --on-accent: #1A1A2E;
+  --hl-mine: #FFE66D;
+  --hl-ai: #4ECDC4;
+  --bub-mine: #FFE66D;
+  --bub-ai: #4ECDC4;
+  --text-color: #F2F2F7;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 8px 8px 0 #FFFFFF;
+  --shadow-sm: 4px 4px 0 #FFFFFF;
+  --font-serif: "Inter", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  --danger: #FF5C4D;
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Crect x='16' y='16' width='60' height='60' fill='%23FF6B6B' fill-opacity='.12'/%3E%3Ccircle cx='188' cy='54' r='28' fill='%23FFE66D' fill-opacity='.14'/%3E%3Crect x='152' y='158' width='54' height='54' fill='%234ECDC4' fill-opacity='.12'/%3E%3Cpath d='M16 216 L74 150' stroke='%23FFFFFF' stroke-width='9' stroke-opacity='.07'/%3E%3C/svg%3E"),
+    linear-gradient(rgba(255, 255, 255, .07) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, .07) 2px, transparent 2px);
+  --deco-size: 240px 240px, 48px 48px, 48px 48px;
+}
+
+/* --------------------------------------------------------------------------
+   硬边硬影：卡片 / 面板 / 列表行
+   3~4px 描边 + 4~8px 硬阴影，零模糊；--line 白天是黑、夜间是白，
+   影子跟着翻面，夜间自动变成白影
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .login__card,
+body[data-theme="neo-brutalism"] .shelf__hero,
+body[data-theme="neo-brutalism"] .modal__box {
+  border: 4px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: 8px 8px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .book-card,
+body[data-theme="neo-brutalism"] .settings__group,
+body[data-theme="neo-brutalism"] .stat,
+body[data-theme="neo-brutalism"] .note-card,
+body[data-theme="neo-brutalism"] .anno-item,
+body[data-theme="neo-brutalism"] .theme-card {
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .log-row {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+/* 虚线框：空状态 / 上传区 */
+body[data-theme="neo-brutalism"] .empty,
+body[data-theme="neo-brutalism"] .upload-drop {
+  border: 3px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .upload-drop:hover,
+body[data-theme="neo-brutalism"] .upload-drop.is-over {
+  border-color: var(--accent);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 var(--line);
+}
+
+/* 悬停 = 抬起来（影子变大 + 往左上错位），按下 = 陷进去 */
+body[data-theme="neo-brutalism"] .book-card:hover,
+body[data-theme="neo-brutalism"] .theme-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .book-card:active,
+body[data-theme="neo-brutalism"] .theme-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .theme-card--active {
+  border-color: var(--line);
+  box-shadow: 4px 4px 0 var(--accent), 8px 8px 0 var(--line);
+}
+
+/* --------------------------------------------------------------------------
+   阅读页：一张白纸压在奶油白底上，粗边 + 8px 硬影
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .reader__content {
+  background: var(--paper);
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 8px 8px 0 var(--line);
+  padding: 30px 30px 34px;
+  line-height: 1.95;
+  letter-spacing: .012em;
+}
+
+body[data-theme="neo-brutalism"] .reader__body {
+  background-color: var(--bg);
+}
+
+/* --------------------------------------------------------------------------
+   按钮：厚块 + 4px 硬影。按下 = 影子缩到 1px + 整体下沉 2px
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .btn,
+body[data-theme="neo-brutalism"] .icon-btn,
+body[data-theme="neo-brutalism"] .reader__back,
+body[data-theme="neo-brutalism"] .toc__close,
+body[data-theme="neo-brutalism"] .modal__close,
+body[data-theme="neo-brutalism"] .sel-bar {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--line);
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+body[data-theme="neo-brutalism"] .btn:hover,
+body[data-theme="neo-brutalism"] .icon-btn:hover,
+body[data-theme="neo-brutalism"] .reader__back:hover,
+body[data-theme="neo-brutalism"] .toc__close:hover,
+body[data-theme="neo-brutalism"] .modal__close:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--line);
+  background: var(--paper);
+}
+
+body[data-theme="neo-brutalism"] .btn:active,
+body[data-theme="neo-brutalism"] .icon-btn:active,
+body[data-theme="neo-brutalism"] .reader__back:active,
+body[data-theme="neo-brutalism"] .toc__close:active,
+body[data-theme="neo-brutalism"] .modal__close:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--line);
+}
+
+/* .sel-bar 靠 translateX(-50%) 居中，悬停时不能动它的位移，只动影子 */
+body[data-theme="neo-brutalism"] .sel-bar:hover {
+  box-shadow: 6px 6px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .btn--primary {
+  background: var(--accent);
+  border-color: var(--line);
+  color: var(--on-accent);
+}
+
+body[data-theme="neo-brutalism"] .btn--ai {
+  background: var(--bub-ai);
+  border-color: var(--line);
+  color: #1A1A2E;
+}
+
+body[data-theme="neo-brutalism"] .btn--ghost {
+  background: var(--bg-2);
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .btn--ghost:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body[data-theme="neo-brutalism"] .btn--danger {
+  background: var(--danger);
+  border-color: var(--line);
+  color: #FFFFFF;
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .btn--sm {
+  min-height: 34px;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+}
+
+/* 批注模式开关的"开"状态 */
+body[data-theme="neo-brutalism"] .icon-btn--on {
+  background: var(--accent);
+  border-color: var(--line);
+  color: var(--on-accent);
+  font-weight: 900;
+}
+
+/* --------------------------------------------------------------------------
+   顶栏 / 阅读工具条 / 底栏：一条粗黑分割 + 4px 硬影
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .topbar,
+body[data-theme="neo-brutalism"] .reader__toolbar {
+  background: var(--bg-2);
+  border-bottom: 3px solid var(--line);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .reader__footer {
+  background: var(--bg-2);
+  border-top: 3px solid var(--line);
+  box-shadow: -4px -4px 0 var(--line);
+}
+
+/* 侧边抽屉：白线 + 8px 硬影带 */
+body[data-theme="neo-brutalism"] .toc {
+  background: var(--bg-2);
+  border-right: 3px solid var(--line);
+  box-shadow: 8px 0 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .anno-panel {
+  background: var(--bg-2);
+  border-left: 3px solid var(--line);
+  box-shadow: -8px 0 0 var(--line);
+}
+
+/* 弹窗遮罩：平涂一层墨色，不要模糊 */
+body[data-theme="neo-brutalism"] .modal__mask {
+  background: rgba(26, 26, 46, .62);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body[data-theme="neo-brutalism"][data-mode="night"] .modal__mask {
+  background: rgba(0, 0, 0, .8);
+}
+
+/* --------------------------------------------------------------------------
+   排版：字重拉到 900，像海报
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .shelf__title {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -.03em;
+  line-height: 1.12;
+  color: var(--ink);
+  border-bottom: 6px solid var(--accent);
+  padding-bottom: 8px;
+}
+
+body[data-theme="neo-brutalism"] .topbar__title,
+body[data-theme="neo-brutalism"] .reader__title,
+body[data-theme="neo-brutalism"] .book-card__title,
+body[data-theme="neo-brutalism"] .note-card__ch,
+body[data-theme="neo-brutalism"] .modal__title,
+body[data-theme="neo-brutalism"] .anno-panel__head,
+body[data-theme="neo-brutalism"] .settings__title,
+body[data-theme="neo-brutalism"] .login__title {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+
+body[data-theme="neo-brutalism"] .login__title {
+  font-size: 1.8rem;
+  letter-spacing: -.02em;
+}
+
+body[data-theme="neo-brutalism"] .reader__chapter-title {
+  font-family: var(--font-sans);
+  font-size: 1.45em;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: .35em;
+}
+
+body[data-theme="neo-brutalism"] .stat__num {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  color: var(--accent);
+}
+
+body[data-theme="neo-brutalism"] .shelf__subtitle,
+body[data-theme="neo-brutalism"] .stat__label,
+body[data-theme="neo-brutalism"] .book-card__meta,
+body[data-theme="neo-brutalism"] .log-row__meta,
+body[data-theme="neo-brutalism"] .bubble__ts,
+body[data-theme="neo-brutalism"] .settings__label {
+  font-weight: 700;
+}
+
+/* 小标签一律全大写 + 拉开字距，像零件上的字 */
+body[data-theme="neo-brutalism"] .stat__label,
+body[data-theme="neo-brutalism"] .pill,
+body[data-theme="neo-brutalism"] .book-card__progress {
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+body[data-theme="neo-brutalism"] .stat__label {
+  font-size: .72rem;
+}
+
+body[data-theme="neo-brutalism"] .book-card__title {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+body[data-theme="neo-brutalism"] .reader__tap-left,
+body[data-theme="neo-brutalism"] .reader__tap-right {
+  background: transparent;
+  color: var(--ink);
+  opacity: .25;
+  font-weight: 900;
+}
+
+body[data-theme="neo-brutalism"] .reader__tap-left:hover,
+body[data-theme="neo-brutalism"] .reader__tap-right:hover {
+  opacity: .8;
+}
+
+body[data-theme="neo-brutalism"] ::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+body[data-theme="neo-brutalism"] :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   划线
+   底色不跟 app.css 的「气泡对比度兜底」抢 —— 那层会按用户自己挑的划线色
+   自动加暗罩（夜间）和深色下划线（白天），比主题规则特异性更高，永远在最上面。
+   主题只做自己那两件事：把下划线加粗、把下划线钉成正文墨色。
+   墨色下划线（白天黑 / 夜间白）不随划线色变 —— 用户挑任何颜色都压得住。
+
+   注意：正文里的划线是 .hl--*（行内 span），它的底色归兜底层管；
+   主题不去动背景图，也不设 background-size —— 尺寸是按层算的，
+   主题一改就会把兜底层那两层渐变一起挤歪。 */
+body[data-theme="neo-brutalism"] .hl--mine,
+body[data-theme="neo-brutalism"] .hl--ai,
+body[data-theme="neo-brutalism"] .para--hl-mine,
+body[data-theme="neo-brutalism"] .para--hl-ai {
+  text-decoration-thickness: 4px;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--ink);
+}
+
+/* 整段染色（老写法）：这块没人管，主题自己配色 —— 实心块 / 斜纹块 */
+body[data-theme="neo-brutalism"] .para--hl-mine {
+  background-image: linear-gradient(transparent 52%, var(--hl-mine) 52%, var(--hl-mine) 94%, transparent 94%);
+}
+
+body[data-theme="neo-brutalism"] .para--hl-ai {
+  background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--hl-ai) 4px 9px);
+  background-size: auto;
+  background-position: 0 0;
+}
+
+/* 夜间：下划线换纯白，压在深底上最跳 */
+body[data-theme="neo-brutalism"][data-mode="night"] .hl--mine,
+body[data-theme="neo-brutalism"][data-mode="night"] .hl--ai {
+  text-decoration-color: var(--ink);
+}
+
+/* 整段染色（老写法）在夜间不能拿亮色铺满整段正文（浅字压亮色就看不清了），
+   改成一条粗下划线：正文仍是浅字压深底 */
+body[data-theme="neo-brutalism"][data-mode="night"] .para--hl-mine,
+body[data-theme="neo-brutalism"][data-mode="night"] .para--hl-ai {
+  background-image: none;
+  text-decoration: underline;
+  text-decoration-thickness: 5px;
+  text-underline-offset: 6px;
+  text-decoration-color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   气泡
+   底色和文字色交给 app.css 的「气泡对比度兜底」管：白天压到近白、夜间压到
+   近黑，文字跟着 --ink 走 —— 用户把气泡色调成什么颜色都不会糊。
+   主题不碰那两样（抢不过，也不该抢），只管自己这层皮：
+   粗黑边 + 硬阴影 + 认得出谁是谁的标记边。
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .bubble {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .bubble--mine {
+  background: var(--bub-mine);
+  border: 3px solid var(--line);
+  border-bottom: 6px solid var(--ink);
+}
+
+body[data-theme="neo-brutalism"] .bubble--ai {
+  background: var(--bub-ai);
+  border: 3px solid var(--line);
+  border-left: 6px solid var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   零碎零件：全部换成方角厚块
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .pill {
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+body[data-theme="neo-brutalism"] .toast {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: 4px 4px 0 var(--line);
+  font-weight: 800;
+}
+
+body[data-theme="neo-brutalism"] .spinner {
+  border-radius: 0;
+  border-width: 3px;
+}
+
+body[data-theme="neo-brutalism"] .seg {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .seg__item {
+  border-radius: 6px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+body[data-theme="neo-brutalism"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 900;
+}
+
+body[data-theme="neo-brutalism"] .progress-bar {
+  height: 12px;
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+body[data-theme="neo-brutalism"] .progress-bar__fill {
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+body[data-theme="neo-brutalism"] .toggle {
+  width: 56px;
+  height: 32px;
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .toggle::after {
+  width: 20px;
+  height: 20px;
+  top: 3px;
+  left: 3px;
+  border-radius: 2px;
+  background: var(--ink);
+  box-shadow: none;
+}
+
+body[data-theme="neo-brutalism"] .toggle--on {
+  background: var(--accent);
+  border-color: var(--line);
+}
+
+body[data-theme="neo-brutalism"] .toggle--on::after {
+  transform: translateX(22px);
+  background: var(--on-accent);
+}
+
+body[data-theme="neo-brutalism"] .field__input,
+body[data-theme="neo-brutalism"] .field__textarea,
+body[data-theme="neo-brutalism"] .login__input {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--line);
+  font-weight: 600;
+}
+
+body[data-theme="neo-brutalism"] .field__input:focus,
+body[data-theme="neo-brutalism"] .field__textarea:focus,
+body[data-theme="neo-brutalism"] .login__input:focus {
+  border-color: var(--accent);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .sel-bar__btn {
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+body[data-theme="neo-brutalism"] .sel-bar__btn:active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+body[data-theme="neo-brutalism"] .swatch--active,
+body[data-theme="neo-brutalism"] .palette__dot--active {
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+body[data-theme="neo-brutalism"] .palette__dot {
+  border: 3px solid var(--line);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .toc__item {
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+body[data-theme="neo-brutalism"] .toc__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 900;
+  box-shadow: inset 6px 0 0 var(--line);
+}
+
+body[data-theme="neo-brutalism"] .modal__head,
+body[data-theme="neo-brutalism"] .anno-panel__head,
+body[data-theme="neo-brutalism"] .toc__head {
+  border-bottom: 3px solid var(--line);
+}
+
+body[data-theme="neo-brutalism"] .modal__foot {
+  border-top: 3px solid var(--line);
+}
+
+body[data-theme="neo-brutalism"] .anno-item--replied {
+  border-left: 6px solid var(--accent);
+}
+
+body[data-theme="neo-brutalism"] .anno-item__anchor {
+  border-left: 5px solid var(--hl-mine);
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+body[data-theme="neo-brutalism"] .log-row--err {
+  border-color: var(--danger);
+  color: var(--danger);
+  font-weight: 700;
+}
+
+body[data-theme="neo-brutalism"] .book-card__cover {
+  border: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 800;
+  box-shadow: none;
+  padding: 18px;
+}
+
+/* --------------------------------------------------------------------------
+   装饰：书架头图上贴一张色卡海报
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"] .shelf__hero {
+  padding: 26px 24px 24px;
+}
+
+body[data-theme="neo-brutalism"] .shelf__hero::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 74px;
+  height: 74px;
+  background: var(--accent);
+  border: 3px solid var(--line);
+  border-radius: 0;
+  transform: rotate(10deg);
+  z-index: 0;
+}
+
+body[data-theme="neo-brutalism"] .shelf__hero::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  width: 64px;
+  height: 20px;
+  background:
+    linear-gradient(#FF6B6B 0 0) 0 0 / 18px 20px no-repeat,
+    linear-gradient(#FFE66D 0 0) 23px 0 / 18px 20px no-repeat,
+    linear-gradient(#4ECDC4 0 0) 46px 0 / 18px 20px no-repeat;
+  z-index: 0;
+}
+
+body[data-theme="neo-brutalism"] .shelf__subtitle,
+body[data-theme="neo-brutalism"] .shelf__tools {
+  position: relative;
+  z-index: 1;
+}
+
+/* 夜间：头图上那块色卡换成深色压深底，白边更跳 */
+body[data-theme="neo-brutalism"][data-mode="night"] .shelf__hero::after {
+  background:
+    linear-gradient(#FF6B6B 0 0) 0 0 / 18px 20px no-repeat,
+    linear-gradient(#FFE66D 0 0) 23px 0 / 18px 20px no-repeat,
+    linear-gradient(#4ECDC4 0 0) 46px 0 / 18px 20px no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   夜间专属：亮色面上的字统一翻深色
+   （气泡的底色和文字色归 app.css 的兜底层，主题不插手）
+   -------------------------------------------------------------------------- */
+body[data-theme="neo-brutalism"][data-mode="night"] .btn--ai {
+  color: #14142A;
+}
+
+body[data-theme="neo-brutalism"][data-mode="night"] .btn--danger {
+  color: #14142A;
+}
+
+body[data-theme="neo-brutalism"][data-mode="night"] .book-card__cover {
+  background: var(--bg-2);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   窄屏：批注面板改成从下往上顶，边框跟着换向
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body[data-theme="neo-brutalism"] .anno-panel {
+    border-left: 0;
+    border-top: 3px solid var(--line);
+    box-shadow: 0 -8px 0 var(--line);
+  }
+
+  body[data-theme="neo-brutalism"] .shelf__hero {
+    padding: 20px 18px;
+  }
+
+  body[data-theme="neo-brutalism"] .shelf__hero::before {
+    width: 54px;
+    height: 54px;
+    top: 14px;
+    right: 14px;
+  }
+
+  body[data-theme="neo-brutalism"] .reader__content {
+    padding: 24px 20px 28px;
+  }
+}
+
+/* 更窄的屏幕：两侧要让开点读热区 */
+@media (max-width: 560px) {
+  body[data-theme="neo-brutalism"] .reader__content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  body[data-theme="neo-brutalism"] .shelf__hero::after {
+    display: none;
+  }
+}
+
+/* 动效：不想动的人就别动 */
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme="neo-brutalism"] .btn:hover,
+  body[data-theme="neo-brutalism"] .icon-btn:hover,
+  body[data-theme="neo-brutalism"] .reader__back:hover,
+  body[data-theme="neo-brutalism"] .toc__close:hover,
+  body[data-theme="neo-brutalism"] .modal__close:hover,
+  body[data-theme="neo-brutalism"] .book-card:hover,
+  body[data-theme="neo-brutalism"] .theme-card:hover {
+    transform: none;
+  }
+}

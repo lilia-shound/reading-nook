@@ -1,0 +1,243 @@
+'use strict';
+/**
+ * 共读小屋 · 主题：液态玻璃 (Liquid Glass)
+ *
+ * 参考：_reference/ui/liquid-glass-components.html（夜）/ liquid-glass-components-light.html（昼）
+ *
+ * 液态玻璃和普通毛玻璃的区别不在模糊本身，而在三件事：
+ *   1) 背景是**高饱和的彩色光斑**，透过玻璃能看到颜色在动
+ *   2) 玻璃**边缘有折射高光**（顶部一道亮线 + 底部一道暗线），这是玻璃切面的光学效果
+ *   3) 圆角克制（16px）、阴影很轻，不靠体积感撑场面
+ */
+
+/* --------------------------------------------------------------------------
+   液态玻璃 / 白天
+   -------------------------------------------------------------------------- */
+body[data-theme="liquid-glass"][data-mode="day"] {
+  --bg: #EEEDF4;
+  --bg-2: rgba(255, 255, 255, .55);
+  --paper: rgba(255, 255, 255, .74);
+  --ink: #1E1B3A;
+  --ink-soft: #7C7893;
+  --line: rgba(99, 102, 241, .14);
+  --accent: #6366F1;
+  --on-accent: #FFFFFF;
+  --hl-mine: rgba(244, 114, 182, .30);
+  --hl-ai: rgba(99, 102, 241, .28);
+  --bub-mine: rgba(255, 255, 255, .80);
+  --bub-ai: rgba(99, 102, 241, .13);
+  --text-color: #1E1B3A;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 4px 16px rgba(99, 102, 241, .08), 0 1px 4px rgba(99, 102, 241, .04);
+  --shadow-sm: 0 2px 8px rgba(99, 102, 241, .06);
+  --font-serif: "SF Pro Display", "Palatino", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+  --font-sans: "SF Pro Text", -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --deco:
+    radial-gradient(42% 34% at 12% 14%, rgba(99, 102, 241, .42), transparent 68%),
+    radial-gradient(38% 30% at 88% 10%, rgba(6, 182, 212, .34), transparent 68%),
+    radial-gradient(46% 38% at 78% 86%, rgba(168, 85, 247, .34), transparent 68%),
+    radial-gradient(32% 26% at 20% 88%, rgba(244, 114, 182, .28), transparent 68%),
+    linear-gradient(160deg, rgba(255, 255, 255, .5), rgba(238, 237, 244, .9));
+  --deco-size: cover;
+}
+
+/* --------------------------------------------------------------------------
+   液态玻璃 / 夜间
+   -------------------------------------------------------------------------- */
+body[data-theme="liquid-glass"][data-mode="night"] {
+  --bg: #0E0E1A;
+  --bg-2: rgba(255, 255, 255, .05);
+  --paper: rgba(18, 18, 32, .60);
+  --ink: #E8E8F0;
+  --ink-soft: #8888A8;
+  --line: rgba(255, 255, 255, .10);
+  --accent: #7C83FF;
+  --on-accent: #0B0B16;
+  --hl-mine: rgba(255, 105, 180, .26);
+  --hl-ai: rgba(124, 131, 255, .30);
+  --bub-mine: rgba(255, 255, 255, .07);
+  --bub-ai: rgba(124, 131, 255, .14);
+  --text-color: #E8E8F0;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, .48), 0 0 16px rgba(124, 131, 255, .16);
+  --shadow-sm: 0 3px 10px rgba(0, 0, 0, .38);
+  --font-serif: "SF Pro Display", "Palatino", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+  --font-sans: "SF Pro Text", -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --deco:
+    radial-gradient(44% 36% at 14% 12%, rgba(124, 131, 255, .48), transparent 68%),
+    radial-gradient(40% 32% at 90% 10%, rgba(77, 255, 255, .26), transparent 68%),
+    radial-gradient(48% 40% at 78% 88%, rgba(196, 77, 255, .34), transparent 68%),
+    radial-gradient(34% 28% at 18% 90%, rgba(255, 105, 180, .24), transparent 68%),
+    linear-gradient(160deg, rgba(30, 27, 58, .8), rgba(14, 14, 26, .95));
+  --deco-size: cover;
+}
+
+/* --------------------------------------------------------------------------
+   玻璃质感：模糊 + 边缘折射高光
+   -------------------------------------------------------------------------- */
+
+/* 大光斑不能平铺！全局是 background-repeat: repeat，液态玻璃必须关掉，
+   否则那几团渐变会被铺成一片小格子，玻璃感全没了。
+   这里直接把 background 写死（不走 --deco 变量），省得变量在多层渐变上出岔子。 */
+body[data-theme="liquid-glass"][data-mode="day"] {
+  background-color: #EEEDF4;
+  background-image:
+    radial-gradient(46% 38% at 10% 12%, rgba(99, 102, 241, .50), transparent 66%),
+    radial-gradient(40% 32% at 90% 8%, rgba(6, 182, 212, .40), transparent 66%),
+    radial-gradient(50% 42% at 80% 88%, rgba(168, 85, 247, .40), transparent 66%),
+    radial-gradient(36% 30% at 16% 90%, rgba(244, 114, 182, .32), transparent 66%),
+    linear-gradient(165deg, rgba(255, 255, 255, .55), rgba(232, 231, 242, .92));
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+body[data-theme="liquid-glass"][data-mode="night"] {
+  background-color: #0E0E1A;
+  background-image:
+    radial-gradient(48% 40% at 12% 10%, rgba(124, 131, 255, .58), transparent 66%),
+    radial-gradient(42% 34% at 92% 8%, rgba(77, 255, 255, .30), transparent 66%),
+    radial-gradient(52% 44% at 80% 90%, rgba(196, 77, 255, .40), transparent 66%),
+    radial-gradient(36% 30% at 14% 92%, rgba(255, 105, 180, .28), transparent 66%),
+    linear-gradient(165deg, rgba(26, 24, 52, .88), rgba(10, 10, 20, .96));
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+body[data-theme="liquid-glass"] .topbar,
+body[data-theme="liquid-glass"] .reader__toolbar,
+body[data-theme="liquid-glass"] .reader__footer,
+body[data-theme="liquid-glass"] .book-card,
+body[data-theme="liquid-glass"] .shelf__hero,
+body[data-theme="liquid-glass"] .settings__group,
+body[data-theme="liquid-glass"] .stat,
+body[data-theme="liquid-glass"] .note-card,
+body[data-theme="liquid-glass"] .log-row,
+body[data-theme="liquid-glass"] .modal__box,
+body[data-theme="liquid-glass"] .anno-panel,
+body[data-theme="liquid-glass"] .toc,
+body[data-theme="liquid-glass"] .anno-item,
+body[data-theme="liquid-glass"] .empty,
+body[data-theme="liquid-glass"] .upload-drop {
+  background: var(--bg-2);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, .55),
+    inset 0 -1px 0 rgba(255, 255, 255, .18);
+}
+
+/* 夜间档的高光压暗，不然会像白天一样刺眼 */
+body[data-theme="liquid-glass"][data-mode="night"] .topbar,
+body[data-theme="liquid-glass"][data-mode="night"] .reader__toolbar,
+body[data-theme="liquid-glass"][data-mode="night"] .reader__footer,
+body[data-theme="liquid-glass"][data-mode="night"] .book-card,
+body[data-theme="liquid-glass"][data-mode="night"] .shelf__hero,
+body[data-theme="liquid-glass"][data-mode="night"] .settings__group,
+body[data-theme="liquid-glass"][data-mode="night"] .stat,
+body[data-theme="liquid-glass"][data-mode="night"] .note-card,
+body[data-theme="liquid-glass"][data-mode="night"] .log-row,
+body[data-theme="liquid-glass"][data-mode="night"] .modal__box,
+body[data-theme="liquid-glass"][data-mode="night"] .anno-panel,
+body[data-theme="liquid-glass"][data-mode="night"] .toc,
+body[data-theme="liquid-glass"][data-mode="night"] .anno-item,
+body[data-theme="liquid-glass"][data-mode="night"] .empty,
+body[data-theme="liquid-glass"][data-mode="night"] .upload-drop {
+  box-shadow: var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, .12),
+    inset 0 -1px 0 rgba(255, 255, 255, .04);
+}
+
+body[data-theme="liquid-glass"] .reader__content {
+  background: var(--paper);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+}
+
+body[data-theme="liquid-glass"] .pill,
+body[data-theme="liquid-glass"] .bubble {
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+}
+
+/* 按钮：按下去的时候高光会「沉」下去，这是玻璃被按压的错觉 */
+body[data-theme="liquid-glass"] .btn {
+  border-color: var(--line);
+  background: var(--bg-2);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+  transition: box-shadow .22s var(--ease), transform .22s var(--ease), background .22s var(--ease);
+}
+
+/* 鼠标扫过时，高光会跟着往一边偏 —— 玻璃在反光，不是死板的 */
+body[data-theme="liquid-glass"] .btn:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .75),
+    inset 1px 0 0 rgba(255, 255, 255, .25),
+    var(--shadow);
+  transform: translateY(-1px);
+}
+
+body[data-theme="liquid-glass"] .btn:active {
+  box-shadow: inset 0 1px 2px rgba(30, 27, 58, .16);
+  transform: translateY(1px);
+}
+
+/* 卡片浮起来一点点，玻璃的高光也跟着亮一点 */
+body[data-theme="liquid-glass"] .book-card,
+body[data-theme="liquid-glass"] .stat,
+body[data-theme="liquid-glass"] .note-card {
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+
+body[data-theme="liquid-glass"] .book-card:hover,
+body[data-theme="liquid-glass"] .stat:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, .72),
+    inset 0 -1px 0 rgba(255, 255, 255, .2);
+}
+
+body[data-theme="liquid-glass"][data-mode="night"] .btn:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .18),
+    inset 1px 0 0 rgba(255, 255, 255, .06),
+    var(--shadow);
+}
+
+body[data-theme="liquid-glass"][data-mode="night"] .book-card:hover,
+body[data-theme="liquid-glass"][data-mode="night"] .stat:hover {
+  box-shadow: var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, .18),
+    inset 0 -1px 0 rgba(255, 255, 255, .05);
+}
+
+/* 一条虹彩渐变：液态玻璃最好认的那个符号 */
+body[data-theme="liquid-glass"] .shelf__hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1E1B3A, #6366F1, #06B6D4, #A855F7, #1E1B3A);
+  opacity: .8;
+}
+
+body[data-theme="liquid-glass"][data-mode="night"] .shelf__hero::after {
+  background: linear-gradient(90deg, #E8E8F0, #7C83FF, #4DFFFF, #C44DFF, #E8E8F0);
+  opacity: .55;
+}
+
+/* 标题旁挂一颗小水珠 */
+body[data-theme="liquid-glass"] .shelf__title::after {
+  content: " \1F4A7";
+  font-size: .78em;
+  vertical-align: 3px;
+  opacity: .8;
+}

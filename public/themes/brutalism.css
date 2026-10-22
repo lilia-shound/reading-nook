@@ -1,0 +1,388 @@
+/**
+ * 共读小屋 · 主题：粗野主义 (Brutalism)
+ *
+ * 参考：_reference/ui/brutalism-components.html
+ *
+ * Brutalism 是新粗野主义的前身 —— "完全放弃装饰、结构外露，
+ * 用纯粹功能性的元素直接呈现"。它的四条铁律：
+ *   1. 原始控件 —— 按钮、输入框就是浏览器默认的样子，只加一条 2px 黑边
+ *   2. 零圆角 —— 全是直角，--radius 给 0
+ *   3. 零阴影 —— 深度感不要，--shadow 给 none
+ *   4. 全等宽 —— 整站 Courier New，连正文也是（这是它的招牌）
+ *
+ * 配色只有三档：深灰 #2D2D2D（字/线）、灰 #E5E5E5（面）、浅灰 #888888（次要字）。
+ * 没有第二个彩色 —— 靠对比而非配色。
+ *
+ * 跟 neo-brutalism 的区别（别做成同一套）：
+ *   brutalism      = 原始、克制、结构外露、无彩色
+ *   neo-brutalism  = 撞色、字重 900、偏移硬阴影、圆角 8-12px
+ *
+ * 夜间档：把"深灰底"换成近黑，纸面换成中灰，等宽不变。
+ * 字体全部走系统栈，零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   粗野主义 / 白天
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"][data-mode="day"] {
+  --bg: #4A4A4A;
+  --bg-2: #E5E5E5;
+  --paper: #E5E5E5;
+  --ink: #2D2D2D;
+  --ink-soft: #6E6E6E;
+  --line: #2D2D2D;
+  --accent: #2D2D2D;
+  --on-accent: #E5E5E5;
+  --hl-mine: #2D2D2D;
+  --hl-ai: #6E6E6E;
+  --bub-mine: #D8D8D8;
+  --bub-ai: #D2D2D2;
+  --text-color: #2D2D2D;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --shadow: none;
+  --shadow-sm: none;
+  --font-serif: "Courier New", Courier, "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Courier New", Courier, "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #8B1A1A;
+  --deco:
+    repeating-linear-gradient(0deg, rgba(229, 229, 229, .10) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(90deg, rgba(229, 229, 229, .10) 0 2px, transparent 2px 6px);
+  --deco-size: 12px 12px, 12px 12px;
+}
+
+/* --------------------------------------------------------------------------
+   粗野主义 / 夜间
+   近黑底 + 中灰纸面，等宽不变
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"][data-mode="night"] {
+  --bg: #101010;
+  --bg-2: #2A2A2A;
+  --paper: #242424;
+  --ink: #E5E5E5;
+  --ink-soft: #9A9A9A;
+  --line: #E5E5E5;
+  --accent: #E5E5E5;
+  --on-accent: #101010;
+  --hl-mine: #E5E5E5;
+  --hl-ai: #9A9A9A;
+  --bub-mine: #323232;
+  --bub-ai: #2C2C2C;
+  --text-color: #E5E5E5;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --shadow: none;
+  --shadow-sm: none;
+  --font-serif: "Courier New", Courier, "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Courier New", Courier, "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #E8705F;
+  --deco:
+    repeating-linear-gradient(0deg, rgba(229, 229, 229, .05) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(90deg, rgba(229, 229, 229, .05) 0 2px, transparent 2px 6px);
+  --deco-size: 12px 12px, 12px 12px;
+}
+
+/* --------------------------------------------------------------------------
+   结构外露：所有框都变成 2px 硬边，零圆角零阴影
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .login__card,
+body[data-theme="brutalism"] .book-card,
+body[data-theme="brutalism"] .shelf__hero,
+body[data-theme="brutalism"] .settings__group,
+body[data-theme="brutalism"] .stat,
+body[data-theme="brutalism"] .note-card,
+body[data-theme="brutalism"] .log-row,
+body[data-theme="brutalism"] .modal__box,
+body[data-theme="brutalism"] .anno-item,
+body[data-theme="brutalism"] .reader__content,
+body[data-theme="brutalism"] .sel-bar,
+body[data-theme="brutalism"] .topbar,
+body[data-theme="brutalism"] .reader__toolbar,
+body[data-theme="brutalism"] .reader__footer,
+body[data-theme="brutalism"] .toc,
+body[data-theme="brutalism"] .anno-panel,
+body[data-theme="brutalism"] .btn,
+body[data-theme="brutalism"] .icon-btn,
+body[data-theme="brutalism"] .reader__back,
+body[data-theme="brutalism"] .toc__close,
+body[data-theme="brutalism"] .modal__close,
+body[data-theme="brutalism"] .field__input,
+body[data-theme="brutalism"] .field__textarea,
+body[data-theme="brutalism"] .login__input,
+body[data-theme="brutalism"] .pill {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body[data-theme="brutalism"] .login__card,
+body[data-theme="brutalism"] .book-card,
+body[data-theme="brutalism"] .settings__group,
+body[data-theme="brutalism"] .stat,
+body[data-theme="brutalism"] .note-card,
+body[data-theme="brutalism"] .log-row,
+body[data-theme="brutalism"] .anno-item {
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+}
+
+body[data-theme="brutalism"] .topbar,
+body[data-theme="brutalism"] .reader__toolbar,
+body[data-theme="brutalism"] .reader__footer {
+  border-bottom: 2px solid var(--line);
+  border-top: 2px solid var(--line);
+  background: var(--bg-2);
+}
+
+body[data-theme="brutalism"] .toc,
+body[data-theme="brutalism"] .anno-panel {
+  border-color: var(--line);
+  background: var(--bg-2);
+}
+
+/* --------------------------------------------------------------------------
+   原始控件：只加一条边，其他都不动
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .btn,
+body[data-theme="brutalism"] .icon-btn,
+body[data-theme="brutalism"] .reader__back,
+body[data-theme="brutalism"] .toc__close,
+body[data-theme="brutalism"] .modal__close {
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+body[data-theme="brutalism"] .btn:hover,
+body[data-theme="brutalism"] .icon-btn:hover {
+  background: var(--line);
+  color: var(--on-accent);
+}
+
+body[data-theme="brutalism"] .btn--primary {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--on-accent);
+}
+
+body[data-theme="brutalism"] .btn--primary:hover {
+  background: #000000;
+  border-color: #000000;
+  color: #E5E5E5;
+}
+
+body[data-theme="brutalism"] .btn--ai {
+  background: var(--bg-2);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+body[data-theme="brutalism"] .btn--danger {
+  background: var(--bg-2);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+body[data-theme="brutalism"] .btn--ghost {
+  background: var(--bg-2);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   排版：字距拉开、全大写标签、正文也是等宽
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .reader__content {
+  border: 2px solid var(--line);
+  background: var(--paper);
+  padding: 30px 28px 36px;
+  line-height: 1.95;
+  letter-spacing: .01em;
+}
+
+body[data-theme="brutalism"] .reader__body {
+  background-color: var(--bg);
+}
+
+body[data-theme="brutalism"] .shelf__title,
+body[data-theme="brutalism"] .reader__title,
+body[data-theme="brutalism"] .reader__chapter-title,
+body[data-theme="brutalism"] .settings__title,
+body[data-theme="brutalism"] .modal__title,
+body[data-theme="brutalism"] .login__title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+body[data-theme="brutalism"] .book-card__title,
+body[data-theme="brutalism"] .shelf__subtitle {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: .03em;
+}
+
+body[data-theme="brutalism"] .book-card__meta,
+body[data-theme="brutalism"] .muted,
+body[data-theme="brutalism"] .pill {
+  font-family: var(--font-sans);
+  font-size: .72rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   分隔线：一根 3px 的粗横条，是这套风格的标点
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .shelf__hero {
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+}
+
+body[data-theme="brutalism"] .reader__chapter-title {
+  border-bottom: 3px solid var(--line);
+  padding-bottom: .5em;
+}
+
+/* --------------------------------------------------------------------------
+   输入框：1px 边，聚焦时加粗到 2px（像原生控件）
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .field__input,
+body[data-theme="brutalism"] .field__textarea,
+body[data-theme="brutalism"] .login__input {
+  border: 2px solid var(--line);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: .85rem;
+}
+
+body[data-theme="brutalism"] .field__input:focus,
+body[data-theme="brutalism"] .field__textarea:focus,
+body[data-theme="brutalism"] .login__input:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   分段控件：一排原始按钮，选中 = 反色
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .seg {
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border: 2px solid var(--line);
+}
+
+body[data-theme="brutalism"] .seg__item {
+  border: 0;
+  border-right: 2px solid var(--line);
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: .74rem;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+body[data-theme="brutalism"] .seg__item:last-child { border-right: 0; }
+
+body[data-theme="brutalism"] .seg__item--active {
+  background: var(--line);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   气泡：纯色块，粗左边条
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .bubble--mine {
+  background: var(--bub-mine);
+  border: 0;
+  border-left: 4px solid var(--line);
+  border-radius: 0;
+}
+
+body[data-theme="brutalism"] .bubble--ai {
+  background: var(--bub-ai);
+  border: 0;
+  border-left: 4px solid var(--ink-soft);
+  border-radius: 0;
+}
+
+body[data-theme="brutalism"] .bubble__name {
+  font-family: var(--font-sans);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   划线：粗野的划线是"加粗 + 反色下划线"，不是荧光笔
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .hl--mine,
+body[data-theme="brutalism"] .hl--ai {
+  background-image: none;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+body[data-theme="brutalism"] .hl--mine {
+  text-decoration-color: var(--line);
+  font-weight: 700;
+}
+
+body[data-theme="brutalism"] .hl--ai {
+  text-decoration-color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   空状态 / 上传区：虚线框
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .empty,
+body[data-theme="brutalism"] .upload-drop {
+  border: 2px dashed var(--line);
+  border-radius: 0;
+  background: var(--bg-2);
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+}
+
+/* --------------------------------------------------------------------------
+   进度条：粗黑条
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .progress-bar {
+  height: 10px;
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 0;
+}
+
+body[data-theme="brutalism"] .progress-bar__fill {
+  background: var(--line);
+  border-radius: 0;
+}
+
+/* --------------------------------------------------------------------------
+   小圆点：直角
+   -------------------------------------------------------------------------- */
+body[data-theme="brutalism"] .swatch,
+body[data-theme="brutalism"] .theme-card__chip {
+  border: 2px solid var(--line);
+  border-radius: 0 !important;
+  box-shadow: none;
+}
+
+body[data-theme="brutalism"] .swatch--active,
+body[data-theme="brutalism"] .theme-card--active {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

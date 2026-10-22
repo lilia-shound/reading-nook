@@ -1,0 +1,914 @@
+/**
+ * 共读小屋 · 主题：复古未来主义 (Retrofuturism)
+ *
+ * 参考：_reference/ui/retrofuturism-components.html（夜）
+ *       _reference/ui/retrofuturism-components-light.html（昼）
+ *
+ * 复古未来 = 站在过去想象未来。同一套视觉语言有两个面：
+ *   夜档是赛博 / 蒸汽波 —— 深紫底、霓虹青、辉光、半透明玻璃面板
+ *   昼档是 70 年代太空手册 —— 暖米白底、几何线条、霓虹色块、硬偏移阴影
+ * 这套皮肤的四条铁律：
+ *   1. 霓虹三色 —— 青 / 粉 / 紫，任何一档都不缺席
+ *      （--neon-cyan / --neon-pink / --neon-purple，全篇只从这三个里取）
+ *   2. 辉光 = 夜，印刷感 = 昼 —— 夜档用 box-shadow 辉光，
+ *      昼档一律换成 3px 3px 0 的硬偏移阴影，零模糊
+ *   3. 等宽字体 + 几何线条 —— 终端排版，轨道线 / 网格 / 圆环当装饰
+ *   4. 半透明面板 —— 玻璃后面是另一个世界（夜档 backdrop-filter，
+ *      昼档半透明暖纸），面板一律不写死不透明底色
+ *
+ * 字体：参考件用 Share Tech Mono / Orbitron，这里换成系统等宽栈代替，
+ *       零外部资源、离线可用。
+ * 装饰：--deco = 内联 data-uri SVG（轨道环 / 星点 / 地平线）+ 纯 CSS 网格，
+ *       不引任何外链图片。
+ *
+ * 两处刻意偏离参考件，都是为了能读：
+ *   - 昼档的青从 #0088AA 加深到 #00728A：原来的青当按钮字只有 3.4:1
+ *   - 昼档的紫当描边只有 2.94:1，描边另用 #B34DFF（3.41:1）；
+ *     强调色本身保持 #BF5FFF 不动
+ */
+
+/* --------------------------------------------------------------------------
+   复古未来主义 / 白天
+   70 年代太空手册：暖米白纸、几何线条、霓虹色块、硬偏移阴影
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"][data-mode="day"] {
+  /* —— 契约变量 —— */
+  --bg: #F5F0E8;
+  --bg-2: rgba(237, 231, 219, .90);
+  --paper: #FBF7EF;
+  --ink: #1A1A2E;
+  --ink-soft: #6B5B7B;
+  --line: #BFB4A2;
+  --accent: #BF5FFF;
+  --on-accent: #1A1A2E;
+  --hl-mine: #D4607A;
+  --hl-ai: #7B4FAF;
+  --bub-mine: rgba(212, 96, 122, .16);
+  --bub-ai: rgba(123, 79, 175, .16);
+  --text-color: #1A1A2E;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --shadow: 3px 3px 0 #00728A;
+  --shadow-sm: 2px 2px 0 rgba(0, 114, 138, .55);
+  --font-serif: "SF Mono", "Cascadia Mono", "Consolas", "Menlo", "Courier New", "Sarasa Mono SC", "Noto Sans Mono CJK SC", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Cascadia Mono", "Consolas", "Menlo", "Courier New", "Sarasa Mono SC", "Noto Sans Mono CJK SC", "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #CC2277;
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%237B4FAF' stroke-opacity='.20' stroke-width='1'%3E%3Ccircle cx='150' cy='50' r='24'/%3E%3Ccircle cx='150' cy='50' r='42'/%3E%3Ccircle cx='150' cy='50' r='60'/%3E%3C/g%3E%3Ccircle cx='150' cy='50' r='6' fill='%23CC2277' fill-opacity='.32'/%3E%3Cpath d='M0 170 H200' stroke='%2300728A' stroke-opacity='.18'/%3E%3Crect x='20' y='120' width='36' height='9' fill='%2300728A' fill-opacity='.18'/%3E%3Crect x='20' y='135' width='22' height='9' fill='%23CC2277' fill-opacity='.16'/%3E%3Ccircle cx='38' cy='34' r='4' fill='%23BF5FFF' fill-opacity='.28'/%3E%3Ccircle cx='92' cy='96' r='3' fill='%2300728A' fill-opacity='.26'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(0, 114, 138, .07) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(0, 114, 138, .07) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 78% 18%, rgba(204, 34, 119, .06), transparent 62%);
+  --deco-size: 200px 200px, 56px 56px, 56px 56px, 320px 320px;
+
+  /* —— 这套皮肤自己的零件（昼档）—— */
+  --neon-cyan: #00728A;
+  --neon-pink: #D4607A;
+  --neon-purple: #BF5FFF;
+  --neon-magenta: #CC2277;
+  --panel-bg: rgba(255, 253, 248, .92);
+  --panel-border: 2px solid #BFB4A2;
+  --panel-blur: none;
+  --glow: none;
+  --btn-bg: transparent;
+  --btn-color: #00728A;
+  --btn-border: 2px solid #00728A;
+  --btn-shadow: 3px 3px 0 #00728A;
+  --btn-hover-bg: #00728A;
+  --btn-hover-color: #FFFFFF;
+  --btn-hover-shadow: 4px 4px 0 #00728A;
+  --btn-press-shadow: 1px 1px 0 #00728A;
+  --input-bg: #FFFFFF;
+  --input-border: 2px solid #00728A;
+  --input-shadow: 3px 3px 0 #00728A;
+  --dashed: 2px dashed #00728A;
+  --cover-bg: linear-gradient(155deg, #FFFDF8, #EFE7D9);
+  --reader-shadow: 6px 6px 0 #00728A;
+  --focus-shadow: 3px 3px 0 #00728A;
+}
+
+/* --------------------------------------------------------------------------
+   复古未来主义 / 夜间
+   赛博 / 蒸汽波：深紫底、霓虹青正文、辉光、半透明玻璃面板
+   正文用柔和的青（#7FE7E7）而不是纯 #00FFFF —— 纯霓虹当正文太刺眼，
+   霓虹感留给描边和辉光。
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"][data-mode="night"] {
+  /* —— 契约变量 —— */
+  --bg: #0D0221;
+  --bg-2: rgba(13, 2, 33, .62);
+  --paper: rgba(6, 2, 20, .70);
+  --ink: #7FE7E7;
+  --ink-soft: #C793B8;
+  --line: rgba(0, 255, 255, .28);
+  --accent: #BF5FFF;
+  --on-accent: #0D0221;
+  --hl-mine: #FF6B9D;
+  --hl-ai: #BF5FFF;
+  --bub-mine: rgba(255, 107, 157, .14);
+  --bub-ai: rgba(191, 95, 255, .18);
+  --text-color: #7FE7E7;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --shadow: 0 0 18px rgba(0, 255, 255, .20), 0 0 44px rgba(191, 95, 255, .14);
+  --shadow-sm: 0 0 10px rgba(0, 255, 255, .16);
+  --font-serif: "SF Mono", "Cascadia Mono", "Consolas", "Menlo", "Courier New", "Sarasa Mono SC", "Noto Sans Mono CJK SC", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Cascadia Mono", "Consolas", "Menlo", "Courier New", "Sarasa Mono SC", "Noto Sans Mono CJK SC", "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #FF5B7A;
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%2300FFFF' stroke-opacity='.13' stroke-width='1'%3E%3Cellipse cx='100' cy='100' rx='88' ry='30'/%3E%3Cellipse cx='100' cy='100' rx='88' ry='30' transform='rotate(28 100 100)'/%3E%3C/g%3E%3Cg fill='%2300FFFF' fill-opacity='.32'%3E%3Ccircle cx='26' cy='38' r='1.6'/%3E%3Ccircle cx='124' cy='20' r='1.2'/%3E%3Ccircle cx='178' cy='88' r='1.8'/%3E%3Ccircle cx='62' cy='152' r='1.4'/%3E%3Ccircle cx='140' cy='168' r='1.1'/%3E%3C/g%3E%3Cg fill='%23FF6B9D' fill-opacity='.28'%3E%3Ccircle cx='96' cy='60' r='1.4'/%3E%3Ccircle cx='44' cy='98' r='1.1'/%3E%3Ccircle cx='170' cy='146' r='1.3'/%3E%3C/g%3E%3Cpath d='M0 180 H200' stroke='%23BF5FFF' stroke-opacity='.16'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(0, 255, 255, .05) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(0, 255, 255, .05) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 76% 14%, rgba(255, 0, 255, .07), transparent 62%);
+  --deco-size: 200px 200px, 56px 56px, 56px 56px, 380px 380px;
+
+  /* —— 这套皮肤自己的零件（夜档）—— */
+  --neon-cyan: #00FFFF;
+  --neon-pink: #FF6B9D;
+  --neon-purple: #BF5FFF;
+  --neon-magenta: #FF00FF;
+  --panel-bg: rgba(0, 0, 0, .50);
+  --panel-border: 1px solid rgba(0, 255, 255, .24);
+  --panel-blur: blur(6px);
+  --glow: 0 0 10px rgba(0, 255, 255, .45), 0 0 22px rgba(0, 255, 255, .22);
+  --btn-bg: rgba(0, 255, 255, .04);
+  --btn-color: #00FFFF;
+  --btn-border: 1px solid rgba(0, 255, 255, .55);
+  --btn-shadow: 0 0 10px rgba(0, 255, 255, .35);
+  --btn-hover-bg: rgba(0, 255, 255, .12);
+  --btn-hover-color: #00FFFF;
+  --btn-hover-shadow: 0 0 15px rgba(0, 255, 255, .60), 0 0 30px rgba(0, 255, 255, .35);
+  --btn-press-shadow: 0 0 6px rgba(0, 255, 255, .50);
+  --input-bg: rgba(0, 0, 0, .40);
+  --input-border: 1px solid rgba(0, 255, 255, .50);
+  --input-shadow: 0 0 12px rgba(0, 255, 255, .45), 0 0 26px rgba(0, 255, 255, .20);
+  --dashed: 2px dashed rgba(0, 255, 255, .50);
+  --cover-bg: rgba(0, 0, 0, .45);
+  --reader-shadow: 0 0 24px rgba(0, 255, 255, .18), 0 0 60px rgba(191, 95, 255, .16);
+  --focus-shadow: 0 0 12px rgba(0, 255, 255, .50);
+}
+
+/* --------------------------------------------------------------------------
+   面板：玻璃（夜）/ 印刷（昼）
+   统一走 --panel-* 三个变量，昼夜只改变量，不改规则
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .login__card,
+body[data-theme="retrofuturism"] .book-card,
+body[data-theme="retrofuturism"] .shelf__hero,
+body[data-theme="retrofuturism"] .settings__group,
+body[data-theme="retrofuturism"] .modal__box,
+body[data-theme="retrofuturism"] .theme-card {
+  border: var(--panel-border);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+/* 小一号的条目用轻一点的影：一屏几十个卡片时不至于全是硬边 */
+body[data-theme="retrofuturism"] .stat,
+body[data-theme="retrofuturism"] .note-card,
+body[data-theme="retrofuturism"] .log-row,
+body[data-theme="retrofuturism"] .anno-item {
+  border: var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+/* 虚线框：空状态 / 上传区 */
+body[data-theme="retrofuturism"] .empty,
+body[data-theme="retrofuturism"] .upload-drop {
+  border: var(--dashed);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+  color: var(--ink-soft);
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+body[data-theme="retrofuturism"] .upload-drop:hover,
+body[data-theme="retrofuturism"] .upload-drop.is-over {
+  border-color: var(--neon-cyan);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   按钮：终端按键 —— 描边 + 字距，悬停才"通电"
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .btn,
+body[data-theme="retrofuturism"] .icon-btn,
+body[data-theme="retrofuturism"] .reader__back,
+body[data-theme="retrofuturism"] .toc__close,
+body[data-theme="retrofuturism"] .modal__close,
+body[data-theme="retrofuturism"] .sel-bar {
+  border: var(--btn-border);
+  border-radius: var(--radius-sm);
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  box-shadow: var(--btn-shadow);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+body[data-theme="retrofuturism"] .btn,
+body[data-theme="retrofuturism"] .icon-btn {
+  text-transform: uppercase;
+}
+
+body[data-theme="retrofuturism"] .btn:hover,
+body[data-theme="retrofuturism"] .icon-btn:hover,
+body[data-theme="retrofuturism"] .reader__back:hover,
+body[data-theme="retrofuturism"] .toc__close:hover,
+body[data-theme="retrofuturism"] .modal__close:hover {
+  transform: translate(-1px, -1px);
+  background: var(--btn-hover-bg);
+  color: var(--btn-hover-color);
+  box-shadow: var(--btn-hover-shadow);
+}
+
+body[data-theme="retrofuturism"] .btn:active,
+body[data-theme="retrofuturism"] .icon-btn:active,
+body[data-theme="retrofuturism"] .reader__back:active,
+body[data-theme="retrofuturism"] .toc__close:active,
+body[data-theme="retrofuturism"] .modal__close:active {
+  transform: translate(1px, 1px);
+  box-shadow: var(--btn-press-shadow);
+}
+
+/* 主按钮：粉 / 洋红；AI 按钮：紫 */
+body[data-theme="retrofuturism"][data-mode="day"] .btn--primary {
+  background: rgba(204, 34, 119, .08);
+  border: 2px solid #CC2277;
+  color: #CC2277;
+  box-shadow: 3px 3px 0 #CC2277;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .btn--primary:hover {
+  background: #CC2277;
+  color: #FFFFFF;
+  box-shadow: 4px 4px 0 #00728A;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .btn--ai {
+  background: rgba(123, 79, 175, .08);
+  border: 2px solid #7B4FAF;
+  color: #7B4FAF;
+  box-shadow: 3px 3px 0 #7B4FAF;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .btn--ai:hover {
+  background: #7B4FAF;
+  color: #FFFFFF;
+  box-shadow: 4px 4px 0 #00728A;
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .btn--primary {
+  background: rgba(255, 107, 157, .10);
+  border: 1px solid var(--neon-pink);
+  color: var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 107, 157, .45), 0 0 24px rgba(255, 107, 157, .20);
+  text-shadow: 0 0 8px rgba(255, 107, 157, .55);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .btn--primary:hover {
+  background: rgba(255, 107, 157, .18);
+  box-shadow: 0 0 16px rgba(255, 107, 157, .70), 0 0 34px rgba(255, 107, 157, .30);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .btn--ai {
+  background: rgba(191, 95, 255, .12);
+  border: 1px solid var(--neon-purple);
+  color: var(--neon-purple);
+  box-shadow: 0 0 10px rgba(191, 95, 255, .45), 0 0 24px rgba(191, 95, 255, .20);
+  text-shadow: 0 0 8px rgba(191, 95, 255, .55);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .btn--ai:hover {
+  background: rgba(191, 95, 255, .20);
+  box-shadow: 0 0 16px rgba(191, 95, 255, .70), 0 0 34px rgba(191, 95, 255, .30);
+}
+
+body[data-theme="retrofuturism"] .btn--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: transparent;
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .btn--danger {
+  box-shadow: 0 0 10px rgba(255, 91, 122, .40);
+}
+
+/* --------------------------------------------------------------------------
+   顶栏 / 工具条 / 底栏 / 抽屉：半透明玻璃条
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .topbar,
+body[data-theme="retrofuturism"] .reader__toolbar,
+body[data-theme="retrofuturism"] .reader__footer {
+  background: var(--bg-2);
+  border-color: var(--line);
+  box-shadow: none;
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+body[data-theme="retrofuturism"] .toc {
+  background: var(--bg-2);
+  border-right: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+body[data-theme="retrofuturism"] .anno-panel {
+  background: var(--bg-2);
+  border-left: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+/* 弹窗遮罩：夜档压暗 + 模糊，昼档平涂一层墨 */
+body[data-theme="retrofuturism"][data-mode="night"] .modal__mask {
+  background: rgba(13, 2, 33, .74);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .modal__mask {
+  background: rgba(26, 26, 46, .46);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   书架：头图上挂一颗"行星"，封面是终端里的书脊
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .shelf__hero {
+  position: relative;
+  overflow: hidden;
+  padding: 26px 26px 24px;
+}
+
+body[data-theme="retrofuturism"] .shelf__hero::after {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .shelf__hero::after {
+  border: 2px solid #00728A;
+  background: linear-gradient(180deg, rgba(191, 95, 255, .18), rgba(212, 96, 122, .16));
+  box-shadow: 0 0 0 12px rgba(0, 114, 138, .10);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .shelf__hero::after {
+  border: 1px solid rgba(0, 255, 255, .45);
+  box-shadow:
+    0 0 26px rgba(0, 255, 255, .35),
+    inset 0 0 50px rgba(191, 95, 255, .35),
+    0 0 0 12px rgba(191, 95, 255, .10);
+}
+
+/* 头图里的文字压在行星之上 */
+body[data-theme="retrofuturism"] .shelf__title,
+body[data-theme="retrofuturism"] .shelf__subtitle,
+body[data-theme="retrofuturism"] .shelf__tools {
+  position: relative;
+  z-index: 2;
+}
+
+body[data-theme="retrofuturism"] .book-card__cover {
+  border: var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--cover-bg);
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+  letter-spacing: .08em;
+}
+
+/* 封面角标：右上洋红圆点 + 左下青色条 */
+body[data-theme="retrofuturism"] .book-card__cover::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--neon-magenta);
+}
+
+body[data-theme="retrofuturism"] .book-card__cover::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 6px;
+  background: var(--neon-cyan);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .book-card__cover::before {
+  box-shadow: 0 0 10px rgba(255, 0, 255, .60);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .book-card__cover::after {
+  box-shadow: 0 0 10px rgba(0, 255, 255, .60);
+}
+
+body[data-theme="retrofuturism"] .book-card:hover {
+  transform: translate(-2px, -2px);
+}
+
+/* --------------------------------------------------------------------------
+   阅读器：一张压在星图上的玻璃纸
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .reader__body {
+  background: transparent;
+}
+
+body[data-theme="retrofuturism"] .reader__content {
+  background: var(--paper);
+  border: var(--panel-border);
+  border-radius: var(--radius);
+  box-shadow: var(--reader-shadow);
+  padding: 30px 30px 34px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+body[data-theme="retrofuturism"] .reader__chapter-title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .1em;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .reader__chapter-title {
+  text-shadow: var(--glow);
+}
+
+body[data-theme="retrofuturism"] .reader__tap-left,
+body[data-theme="retrofuturism"] .reader__tap-right {
+  color: var(--neon-cyan);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  opacity: .32;
+}
+
+body[data-theme="retrofuturism"] .reader__tap-left:hover,
+body[data-theme="retrofuturism"] .reader__tap-right:hover {
+  opacity: .75;
+}
+
+/* --------------------------------------------------------------------------
+   划线：荧光带压在下沿 + 实色下划线
+   荧光带往下挪到 66%~94%，只擦字底不糊字面；下划线用实色 --hl-*，
+   用户在设置里换色也照样看得见。
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .hl--mine,
+body[data-theme="retrofuturism"] .para--hl-mine,
+body[data-theme="retrofuturism"] .hl--ai,
+body[data-theme="retrofuturism"] .para--hl-ai {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip-ink: none;
+}
+
+body[data-theme="retrofuturism"] .hl--mine,
+body[data-theme="retrofuturism"] .para--hl-mine {
+  text-decoration-color: var(--hl-mine);
+}
+
+body[data-theme="retrofuturism"] .hl--ai,
+body[data-theme="retrofuturism"] .para--hl-ai {
+  text-decoration-color: var(--hl-ai);
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .hl--mine,
+body[data-theme="retrofuturism"][data-mode="day"] .para--hl-mine {
+  background-image: linear-gradient(transparent 66%, rgba(212, 96, 122, .32) 66%, rgba(212, 96, 122, .32) 93%, transparent 93%);
+  background-image: linear-gradient(transparent 66%, color-mix(in srgb, var(--hl-mine) 32%, transparent) 66%, color-mix(in srgb, var(--hl-mine) 32%, transparent) 93%, transparent 93%);
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .hl--ai,
+body[data-theme="retrofuturism"][data-mode="day"] .para--hl-ai {
+  background-image: linear-gradient(transparent 66%, rgba(123, 79, 175, .30) 66%, rgba(123, 79, 175, .30) 93%, transparent 93%);
+  background-image: linear-gradient(transparent 66%, color-mix(in srgb, var(--hl-ai) 30%, transparent) 66%, color-mix(in srgb, var(--hl-ai) 30%, transparent) 93%, transparent 93%);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .hl--mine,
+body[data-theme="retrofuturism"][data-mode="night"] .para--hl-mine {
+  background-image: linear-gradient(transparent 66%, rgba(255, 107, 157, .34) 66%, rgba(255, 107, 157, .34) 93%, transparent 93%);
+  background-image: linear-gradient(transparent 66%, color-mix(in srgb, var(--hl-mine) 34%, transparent) 66%, color-mix(in srgb, var(--hl-mine) 34%, transparent) 93%, transparent 93%);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .hl--ai,
+body[data-theme="retrofuturism"][data-mode="night"] .para--hl-ai {
+  background-image: linear-gradient(transparent 66%, rgba(191, 95, 255, .34) 66%, rgba(191, 95, 255, .34) 93%, transparent 93%);
+  background-image: linear-gradient(transparent 66%, color-mix(in srgb, var(--hl-ai) 34%, transparent) 66%, color-mix(in srgb, var(--hl-ai) 34%, transparent) 93%, transparent 93%);
+}
+
+/* --------------------------------------------------------------------------
+   排版：等宽 + 字距，标题当仪表盘读数
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .topbar__title,
+body[data-theme="retrofuturism"] .reader__title,
+body[data-theme="retrofuturism"] .book-card__title,
+body[data-theme="retrofuturism"] .note-card__ch,
+body[data-theme="retrofuturism"] .modal__title,
+body[data-theme="retrofuturism"] .anno-panel__head,
+body[data-theme="retrofuturism"] .settings__title,
+body[data-theme="retrofuturism"] .login__title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+body[data-theme="retrofuturism"] .shelf__title {
+  font-family: var(--font-sans);
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: .06em;
+  line-height: 1.2;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .shelf__title {
+  color: #00728A;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .shelf__subtitle {
+  color: #CC2277;
+  font-family: var(--font-sans);
+  letter-spacing: .06em;
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .shelf__title {
+  color: #7FE7E7;
+  text-shadow: var(--glow);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .shelf__subtitle {
+  color: var(--neon-pink);
+  text-shadow: 0 0 8px rgba(255, 107, 157, .50);
+}
+
+body[data-theme="retrofuturism"] .stat__num {
+  font-family: var(--font-sans);
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--accent);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .stat__num {
+  text-shadow: 0 0 10px rgba(191, 95, 255, .55);
+}
+
+/* 昼档的紫在米白底上偏浅，数字换成深一档的紫才读得清 */
+body[data-theme="retrofuturism"][data-mode="day"] .stat__num {
+  color: #7B4FAF;
+}
+
+body[data-theme="retrofuturism"] .book-card__meta,
+body[data-theme="retrofuturism"] .log-row__meta,
+body[data-theme="retrofuturism"] .bubble__ts,
+body[data-theme="retrofuturism"] .stat__label,
+body[data-theme="retrofuturism"] .anno-item__meta {
+  font-family: var(--font-sans);
+  letter-spacing: .04em;
+}
+
+/* 链接：紫在米白底上太浅，换深一档的紫才读得清 */
+body[data-theme="retrofuturism"][data-mode="day"] a {
+  color: #7B4FAF;
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] a {
+  color: #BF5FFF;
+}
+
+/* --------------------------------------------------------------------------
+   零件：胶囊 / 分段 / 开关 / 进度 / 输入 / 主题卡
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .pill {
+  border: 1px solid var(--line);
+  background: var(--panel-bg);
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+  letter-spacing: .06em;
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+body[data-theme="retrofuturism"] .seg {
+  border: 1px solid var(--line);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="retrofuturism"] .seg__item {
+  font-family: var(--font-sans);
+  letter-spacing: .06em;
+}
+
+body[data-theme="retrofuturism"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .seg__item--active {
+  box-shadow: 0 0 12px rgba(191, 95, 255, .55);
+}
+
+body[data-theme="retrofuturism"] .toggle {
+  border: 1px solid var(--line);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="retrofuturism"] .toggle::after {
+  background: var(--neon-cyan);
+  box-shadow: none;
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .toggle::after {
+  box-shadow: 0 0 10px rgba(0, 255, 255, .60);
+}
+
+body[data-theme="retrofuturism"] .toggle--on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+body[data-theme="retrofuturism"] .toggle--on::after {
+  background: var(--on-accent);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .toggle--on::after {
+  background: #FFFFFF;
+  box-shadow: 0 0 10px rgba(255, 255, 255, .55);
+}
+
+body[data-theme="retrofuturism"] .progress-bar {
+  height: 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+
+body[data-theme="retrofuturism"] .progress-bar__fill {
+  border-radius: 0;
+  background: linear-gradient(90deg, var(--accent), var(--neon-cyan));
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .progress-bar__fill {
+  box-shadow: 0 0 10px rgba(0, 255, 255, .55);
+}
+
+body[data-theme="retrofuturism"] .field__input,
+body[data-theme="retrofuturism"] .field__textarea,
+body[data-theme="retrofuturism"] .login__input {
+  border: var(--input-border);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  letter-spacing: .04em;
+}
+
+body[data-theme="retrofuturism"] .field__input:focus,
+body[data-theme="retrofuturism"] .field__textarea:focus,
+body[data-theme="retrofuturism"] .login__input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: var(--input-shadow);
+}
+
+body[data-theme="retrofuturism"] .field__input::placeholder,
+body[data-theme="retrofuturism"] .field__textarea::placeholder,
+body[data-theme="retrofuturism"] .login__input::placeholder {
+  color: var(--ink-soft);
+  opacity: .7;
+}
+
+body[data-theme="retrofuturism"] .theme-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="retrofuturism"] .theme-card--active {
+  border-color: var(--accent);
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .theme-card--active {
+  box-shadow: 3px 3px 0 var(--accent);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .theme-card--active {
+  box-shadow: var(--shadow), 0 0 0 2px var(--accent);
+}
+
+body[data-theme="retrofuturism"] .swatch--active,
+body[data-theme="retrofuturism"] .palette__dot--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+body[data-theme="retrofuturism"] .toc__item {
+  font-family: var(--font-sans);
+  letter-spacing: .04em;
+}
+
+body[data-theme="retrofuturism"] .toc__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  box-shadow: inset 4px 0 0 var(--neon-cyan);
+}
+
+body[data-theme="retrofuturism"] .toast {
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .toast {
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: 3px 3px 0 var(--neon-cyan);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .toast {
+  background: rgba(13, 2, 33, .92);
+  color: var(--ink);
+  box-shadow: 0 0 18px rgba(0, 255, 255, .35);
+}
+
+/* --------------------------------------------------------------------------
+   气泡与批注：粉 = 我的，紫 = 他的
+   颜色之外还保留原版的 ✎ / ◈ 符号，形状不靠圆角区分
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] .bubble {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  -webkit-backdrop-filter: var(--panel-blur);
+  backdrop-filter: var(--panel-blur);
+}
+
+body[data-theme="retrofuturism"] .bubble--mine {
+  background: var(--bub-mine);
+  border-color: var(--neon-pink);
+  border-bottom-color: var(--hl-mine);
+  color: var(--ink);
+}
+
+body[data-theme="retrofuturism"] .bubble--ai {
+  background: var(--bub-ai);
+  border-color: var(--neon-purple);
+  border-left-color: var(--accent);
+  color: var(--ink);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .bubble--mine {
+  box-shadow: 0 0 14px rgba(255, 107, 157, .30);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .bubble--ai {
+  box-shadow: 0 0 14px rgba(191, 95, 255, .30);
+}
+
+body[data-theme="retrofuturism"] .anno-item--replied {
+  border-left: 3px solid var(--accent);
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .anno-item--replied {
+  box-shadow: -3px 0 12px rgba(191, 95, 255, .30), var(--shadow-sm);
+}
+
+body[data-theme="retrofuturism"] .anno-item__anchor {
+  border-left: 3px solid var(--hl-mine);
+  font-family: var(--font-sans);
+}
+
+/* --------------------------------------------------------------------------
+   昼档专属：#BF5FFF 当描边只有 2.94:1，描边一律换深一档的 #B34DFF（3.41:1）
+   强调色本身不动 —— 按钮底色、选中态还是那个招牌紫
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"][data-mode="day"] .spinner {
+  border-top-color: #B34DFF;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .anno-item--replied {
+  border-left-color: #B34DFF;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .theme-card--active {
+  border-color: #B34DFF;
+}
+
+body[data-theme="retrofuturism"][data-mode="day"] .swatch--active,
+body[data-theme="retrofuturism"][data-mode="day"] .palette__dot--active {
+  border-color: #B34DFF;
+  box-shadow: 0 0 0 2px #B34DFF;
+}
+
+/* --------------------------------------------------------------------------
+   焦点 / 选中 / 滚动条
+   -------------------------------------------------------------------------- */
+body[data-theme="retrofuturism"] :focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+body[data-theme="retrofuturism"] ::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+body[data-theme="retrofuturism"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body[data-theme="retrofuturism"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body[data-theme="retrofuturism"] ::-webkit-scrollbar-thumb {
+  background: var(--neon-purple);
+  border-radius: 2px;
+}
+
+body[data-theme="retrofuturism"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}
+
+/* --------------------------------------------------------------------------
+   夜档专属：故障标题（很轻，只闪一下）
+   -------------------------------------------------------------------------- */
+@keyframes rfx-glitch {
+  0%, 90%, 100% { text-shadow: 0 0 10px rgba(0, 255, 255, .45), 0 0 22px rgba(0, 255, 255, .22); }
+  92% { text-shadow: 2px 0 rgba(255, 0, 255, .70), -2px 0 rgba(0, 255, 255, .70); }
+  94% { text-shadow: -2px 0 rgba(255, 0, 255, .70), 2px 0 rgba(0, 255, 255, .70); }
+  96% { text-shadow: 0 0 10px rgba(0, 255, 255, .45), 0 0 22px rgba(0, 255, 255, .22); }
+}
+
+body[data-theme="retrofuturism"][data-mode="night"] .shelf__title {
+  animation: rfx-glitch 7s infinite;
+}
+
+/* --------------------------------------------------------------------------
+   窄屏：批注面板改成从下往上顶；纸面留出点读热区
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body[data-theme="retrofuturism"] .anno-panel {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, .35);
+  }
+
+  body[data-theme="retrofuturism"] .shelf__hero {
+    padding: 20px 18px;
+  }
+
+  body[data-theme="retrofuturism"] .shelf__hero::after {
+    width: 104px;
+    height: 104px;
+    right: -26px;
+    top: -26px;
+  }
+
+  body[data-theme="retrofuturism"] .reader__content {
+    padding: 24px 20px 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  body[data-theme="retrofuturism"] .reader__content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
+/* 动画统一收：晕眩的闪动对晕动症用户不友好 */
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme="retrofuturism"][data-mode="night"] .shelf__title {
+    animation: none;
+  }
+}

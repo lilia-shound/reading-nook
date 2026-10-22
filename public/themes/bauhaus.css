@@ -1,0 +1,629 @@
+/**
+ * 共读小屋 · 主题：包豪斯 (Bauhaus)
+ *
+ * 参考：_reference/ui/bauhaus-components.html
+ *
+ * 包豪斯只认三件事：基本几何形（圆 / 方 / 三角）、红黄蓝三原色、粗黑线。
+ * 这套皮肤的四条铁律：
+ *   1. 直角 —— 卡片一律 2px 圆角，只有头像 / 色卡这类元素才用 50% 圆形
+ *   2. 粗黑线 —— 描边至少 3px 纯黑，不灰、不半透明
+ *   3. 硬阴影 —— 3px 3px 0，零模糊、固定偏移，像印刷错版
+ *   4. 三原色块 —— 红 #E30613 / 黄 #FFD100 / 蓝 #0033A0 + 黑 + 白，表面一律平涂
+ *
+ * 夜间档：黑底 + 白线 + 原色块，硬阴影换成白色，像黑胶唱片 / 海报的反印。
+ * 字体全部走系统栈，零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   包豪斯 / 白天
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"][data-mode="day"] {
+  --bg: #F0EAD6;
+  --bg-2: #FFFFFF;
+  --paper: #FFFFFF;
+  --ink: #1A1A1A;
+  --ink-soft: #666666;
+  --line: #000000;
+  --accent: #E30613;
+  --on-accent: #FFFFFF;
+  --hl-mine: #FFD100;
+  --hl-ai: #0033A0;
+  --bub-mine: #FFD100;
+  --bub-ai: #0033A0;
+  --text-color: #1A1A1A;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --shadow: 3px 3px 0 #000000;
+  --shadow-sm: 3px 3px 0 #000000;
+  --font-serif: "Futura", "Avenir Next", "Century Gothic", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --danger: #E30613;
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M22 162 L64 74 L106 162 Z' fill='%230033A0' fill-opacity='.16'/%3E%3Crect x='122' y='114' width='52' height='52' fill='%23E30613' fill-opacity='.14'/%3E%3Ccircle cx='54' cy='48' r='20' fill='%23FFD100' fill-opacity='.34'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 76% 24%, rgba(0, 51, 160, .09) 0 13%, transparent 13.5%),
+    linear-gradient(90deg, rgba(0, 0, 0, .055) 0 2px, transparent 2px 100%);
+  --deco-size: 200px 200px, 280px 280px, 64px 64px;
+}
+
+/* --------------------------------------------------------------------------
+   包豪斯 / 夜间
+   黑底 + 白线 + 原色块；蓝色在黑底上提亮一档才看得见
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"][data-mode="night"] {
+  --bg: #0A0A0A;
+  --bg-2: #141414;
+  --paper: #1E1E1E;
+  --ink: #FFFFFF;
+  --ink-soft: #9E9E9E;
+  --line: #FFFFFF;
+  --accent: #E30613;
+  --on-accent: #FFFFFF;
+  --hl-mine: #FFD100;
+  --hl-ai: #4C6FE0;
+  --bub-mine: #FFD100;
+  --bub-ai: #1A47AE;
+  --text-color: #FFFFFF;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --shadow: 3px 3px 0 #FFFFFF;
+  --shadow-sm: 3px 3px 0 #FFFFFF;
+  --font-serif: "Futura", "Avenir Next", "Century Gothic", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --danger: #FF5B4A;
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M22 162 L64 74 L106 162 Z' fill='%23FFFFFF' fill-opacity='.08'/%3E%3Crect x='122' y='114' width='52' height='52' fill='%23FFFFFF' fill-opacity='.06'/%3E%3Ccircle cx='54' cy='48' r='20' fill='%23FFD100' fill-opacity='.18'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 76% 24%, rgba(227, 6, 19, .14) 0 13%, transparent 13.5%),
+    linear-gradient(90deg, rgba(255, 255, 255, .05) 0 2px, transparent 2px 100%);
+  --deco-size: 200px 200px, 280px 280px, 64px 64px;
+}
+
+/* --------------------------------------------------------------------------
+   硬边硬影：卡片 / 面板 / 列表行
+   3px 纯黑描边 + 3px 3px 0 硬阴影，零模糊
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"] .login__card,
+body[data-theme="bauhaus"] .book-card,
+body[data-theme="bauhaus"] .shelf__hero,
+body[data-theme="bauhaus"] .settings__group,
+body[data-theme="bauhaus"] .stat,
+body[data-theme="bauhaus"] .note-card,
+body[data-theme="bauhaus"] .log-row,
+body[data-theme="bauhaus"] .modal__box,
+body[data-theme="bauhaus"] .anno-item {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  background: var(--bg-2);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+/* 虚线框：空状态 / 上传区 */
+body[data-theme="bauhaus"] .empty,
+body[data-theme="bauhaus"] .upload-drop {
+  border: 3px dashed var(--line);
+  border-radius: 2px;
+  background: var(--bg-2);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+/* 阅读页：一张白纸压在米白底上 */
+body[data-theme="bauhaus"] .reader__content {
+  background: var(--paper);
+  border: 4px solid var(--line);
+  border-radius: 2px;
+  box-shadow: 6px 6px 0 var(--line);
+  padding: 30px 30px 34px;
+}
+
+body[data-theme="bauhaus"] .reader__body {
+  background-color: var(--bg);
+}
+
+/* --------------------------------------------------------------------------
+   按钮：印刷块。按下去 = 影子缩到 1px + 整体下沉 2px
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"] .btn,
+body[data-theme="bauhaus"] .icon-btn,
+body[data-theme="bauhaus"] .reader__back,
+body[data-theme="bauhaus"] .toc__close,
+body[data-theme="bauhaus"] .modal__close,
+body[data-theme="bauhaus"] .sel-bar {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  background: var(--bg-2);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--line);
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+body[data-theme="bauhaus"] .btn:hover,
+body[data-theme="bauhaus"] .icon-btn:hover,
+body[data-theme="bauhaus"] .reader__back:hover,
+body[data-theme="bauhaus"] .toc__close:hover,
+body[data-theme="bauhaus"] .modal__close:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--line);
+  background: var(--paper);
+}
+
+body[data-theme="bauhaus"] .btn:active,
+body[data-theme="bauhaus"] .icon-btn:active,
+body[data-theme="bauhaus"] .reader__back:active,
+body[data-theme="bauhaus"] .toc__close:active,
+body[data-theme="bauhaus"] .modal__close:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .btn--primary {
+  background: var(--accent);
+  border-color: var(--line);
+  color: var(--on-accent);
+}
+
+body[data-theme="bauhaus"] .btn--ai {
+  background: var(--bub-ai);
+  border-color: var(--line);
+  color: #FFFFFF;
+}
+
+body[data-theme="bauhaus"] .btn--ghost {
+  background: var(--bg-2);
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .btn--danger {
+  background: #E30613;
+  border-color: var(--line);
+  color: #FFFFFF;
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+/* 顶栏 / 阅读工具条 / 底栏：一条 4px 黑实线当分割 */
+body[data-theme="bauhaus"] .topbar,
+body[data-theme="bauhaus"] .reader__toolbar {
+  background: var(--bg-2);
+  border-bottom: 4px solid var(--line);
+  box-shadow: none;
+}
+
+body[data-theme="bauhaus"] .reader__footer {
+  background: var(--bg-2);
+  border-top: 4px solid var(--line);
+  box-shadow: none;
+}
+
+/* 侧边抽屉：白线 + 硬影 */
+body[data-theme="bauhaus"] .toc {
+  background: var(--bg-2);
+  border-right: 4px solid var(--line);
+  box-shadow: 8px 0 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .anno-panel {
+  background: var(--bg-2);
+  border-left: 4px solid var(--line);
+  box-shadow: -8px 0 0 var(--line);
+}
+
+/* 弹窗遮罩：平涂一层墨色，不要模糊 */
+body[data-theme="bauhaus"] .modal__mask {
+  background: rgba(26, 26, 26, .55);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body[data-theme="bauhaus"][data-mode="night"] .modal__mask {
+  background: rgba(0, 0, 0, .74);
+}
+
+/* --------------------------------------------------------------------------
+   几何构成：圆 / 方 / 三角
+   -------------------------------------------------------------------------- */
+
+/* 书架头图：右上黄圆 + 右下红三角 */
+body[data-theme="bauhaus"] .shelf__hero {
+  border: 4px solid var(--line);
+  border-radius: 2px;
+  background: var(--bg-2);
+  box-shadow: 6px 6px 0 var(--line);
+  padding: 26px 26px 24px;
+}
+
+body[data-theme="bauhaus"] .shelf__hero::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 112px;
+  height: 112px;
+  border: 4px solid var(--line);
+  border-radius: 50%;
+  background: #FFD100;
+}
+
+body[data-theme="bauhaus"] .shelf__hero::after {
+  content: "";
+  position: absolute;
+  right: 58px;
+  bottom: -20px;
+  width: 0;
+  height: 0;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-bottom: 48px solid #E30613;
+}
+
+/* 头图里的文字压在几何形之上 */
+body[data-theme="bauhaus"] .shelf__title,
+body[data-theme="bauhaus"] .shelf__subtitle,
+body[data-theme="bauhaus"] .shelf__tools {
+  position: relative;
+  z-index: 2;
+}
+
+/* 书籍封面：右上红圆 + 左下蓝三角 */
+body[data-theme="bauhaus"] .book-card__cover {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 800;
+  box-shadow: none;
+  padding: 18px;
+}
+
+body[data-theme="bauhaus"] .book-card__cover::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--line);
+  border-radius: 50%;
+  background: #E30613;
+}
+
+body[data-theme="bauhaus"] .book-card__cover::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 30px solid #0033A0;
+}
+
+/* 目录头 / 设置组标题：两个小色块当符号 */
+body[data-theme="bauhaus"] .toc__head::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--line);
+  border-radius: 0;
+  background: #0033A0;
+}
+
+body[data-theme="bauhaus"] .settings__title::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--line);
+  border-radius: 0;
+  background: #E30613;
+}
+
+/* --------------------------------------------------------------------------
+   排版：文字本身当图形
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"] .shelf__title {
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -.03em;
+  line-height: 1.08;
+  color: var(--ink);
+}
+
+body[data-theme="bauhaus"] .topbar__title,
+body[data-theme="bauhaus"] .reader__title,
+body[data-theme="bauhaus"] .book-card__title,
+body[data-theme="bauhaus"] .note-card__ch,
+body[data-theme="bauhaus"] .modal__title,
+body[data-theme="bauhaus"] .anno-panel__head,
+body[data-theme="bauhaus"] .settings__title,
+body[data-theme="bauhaus"] .login__title {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+
+body[data-theme="bauhaus"] .reader__chapter-title {
+  font-family: var(--font-sans);
+  font-size: 1.5em;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  border-bottom: 3px solid var(--line);
+  padding-bottom: .4em;
+}
+
+body[data-theme="bauhaus"] .stat__num {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  color: var(--accent);
+}
+
+body[data-theme="bauhaus"] .shelf__subtitle,
+body[data-theme="bauhaus"] .stat__label,
+body[data-theme="bauhaus"] .book-card__meta,
+body[data-theme="bauhaus"] .log-row__meta,
+body[data-theme="bauhaus"] .bubble__ts {
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   划线：改成粗下划线，而不是压在字上的荧光带
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"] .para--hl-mine,
+body[data-theme="bauhaus"] .para--hl-ai {
+  background-image: none;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 6px;
+}
+
+body[data-theme="bauhaus"] .para--hl-mine { text-decoration-color: var(--hl-mine); }
+body[data-theme="bauhaus"] .para--hl-ai { text-decoration-color: var(--hl-ai); }
+
+body[data-theme="bauhaus"] ::selection {
+  background: #FFD100;
+  color: #1A1A1A;
+}
+
+body[data-theme="bauhaus"] :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   气泡：黄 = 我的，蓝 = 他。形状之外还有原版的 ✎ / ◈ 符号
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"] .bubble {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .bubble--mine {
+  background: var(--bub-mine);
+  color: #1A1A1A;
+}
+
+body[data-theme="bauhaus"] .bubble--ai {
+  background: var(--bub-ai);
+  color: #FFFFFF;
+}
+
+body[data-theme="bauhaus"] .bubble--mine .bubble__name,
+body[data-theme="bauhaus"] .bubble--mine .bubble__ts {
+  color: rgba(26, 26, 26, .62);
+}
+
+body[data-theme="bauhaus"] .bubble--ai .bubble__name,
+body[data-theme="bauhaus"] .bubble--ai .bubble__ts {
+  color: rgba(255, 255, 255, .78);
+}
+
+/* --------------------------------------------------------------------------
+   零碎零件：全部抹平圆角、换成方块
+   -------------------------------------------------------------------------- */
+body[data-theme="bauhaus"] .pill {
+  border: 2px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  font-weight: 700;
+}
+
+body[data-theme="bauhaus"] .toast {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: 3px 3px 0 var(--line);
+  font-weight: 700;
+}
+
+body[data-theme="bauhaus"] .btn--sm,
+body[data-theme="bauhaus"] .seg,
+body[data-theme="bauhaus"] .seg__item,
+body[data-theme="bauhaus"] .sel-bar__btn {
+  border-radius: 2px;
+}
+
+body[data-theme="bauhaus"] .seg {
+  border: 3px solid var(--line);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 800;
+}
+
+body[data-theme="bauhaus"] .progress-bar {
+  border: 2px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+}
+
+body[data-theme="bauhaus"] .progress-bar__fill {
+  border-radius: 0;
+  background: var(--accent);
+}
+
+body[data-theme="bauhaus"] .toggle {
+  border: 3px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .toggle::after {
+  width: 20px;
+  height: 20px;
+  top: 2px;
+  left: 2px;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: none;
+}
+
+body[data-theme="bauhaus"] .toggle--on {
+  background: #E30613;
+  border-color: var(--line);
+}
+
+body[data-theme="bauhaus"] .toggle--on::after {
+  transform: translateX(22px);
+  background: #FFFFFF;
+}
+
+body[data-theme="bauhaus"] .field__input,
+body[data-theme="bauhaus"] .field__textarea,
+body[data-theme="bauhaus"] .login__input {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  font-weight: 600;
+}
+
+body[data-theme="bauhaus"] .field__input:focus,
+body[data-theme="bauhaus"] .field__textarea:focus,
+body[data-theme="bauhaus"] .login__input:focus {
+  border-color: var(--accent);
+}
+
+body[data-theme="bauhaus"] .theme-card {
+  border: 3px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .theme-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .theme-card--active {
+  border-color: var(--line);
+  box-shadow: 3px 3px 0 var(--accent), 6px 6px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .swatch--active,
+body[data-theme="bauhaus"] .palette__dot--active {
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+body[data-theme="bauhaus"] .book-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .toc__item {
+  border-radius: 2px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+body[data-theme="bauhaus"] .toc__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 800;
+  box-shadow: inset 5px 0 0 var(--line);
+}
+
+body[data-theme="bauhaus"] .modal__head,
+body[data-theme="bauhaus"] .anno-panel__head,
+body[data-theme="bauhaus"] .toc__head {
+  border-bottom: 3px solid var(--line);
+}
+
+body[data-theme="bauhaus"] .modal__foot {
+  border-top: 3px solid var(--line);
+}
+
+body[data-theme="bauhaus"] .anno-item--replied {
+  border-left: 6px solid var(--accent);
+}
+
+body[data-theme="bauhaus"] .anno-item__anchor {
+  border-left: 5px solid var(--hl-mine);
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+body[data-theme="bauhaus"] .reader__tap-left,
+body[data-theme="bauhaus"] .reader__tap-right {
+  background: transparent;
+  color: var(--ink);
+  opacity: .22;
+  font-weight: 900;
+}
+
+body[data-theme="bauhaus"] .reader__tap-left:hover,
+body[data-theme="bauhaus"] .reader__tap-right:hover {
+  opacity: .8;
+}
+
+/* --------------------------------------------------------------------------
+   窄屏：批注面板改成从下往上顶，边框跟着换向
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body[data-theme="bauhaus"] .anno-panel {
+    border-left: 0;
+    border-top: 4px solid var(--line);
+    box-shadow: 0 -8px 0 var(--line);
+  }
+
+  body[data-theme="bauhaus"] .shelf__hero {
+    padding: 20px 18px;
+  }
+
+  body[data-theme="bauhaus"] .shelf__hero::before {
+    width: 76px;
+    height: 76px;
+    top: -22px;
+    right: -22px;
+  }
+
+  body[data-theme="bauhaus"] .shelf__hero::after {
+    right: 34px;
+    border-left-width: 20px;
+    border-right-width: 20px;
+    border-bottom-width: 34px;
+  }
+
+  body[data-theme="bauhaus"] .reader__content {
+    padding: 24px 20px 28px;
+  }
+}
+
+/* 更窄的屏幕：两侧要让开点读热区 */
+@media (max-width: 560px) {
+  body[data-theme="bauhaus"] .reader__content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}

@@ -1,0 +1,42 @@
+name: 部署 Pages
+
+# 静态站点在 public/ 目录里，直接当 artifact 传上去。
+# data/（密文数据）不进构建 —— 站点是运行时去 raw.githubusercontent.com 读的。
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出
+        uses: actions/checkout@v4
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传站点
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: 发布
+        id: deployment
+        uses: actions/deploy-pages@v4

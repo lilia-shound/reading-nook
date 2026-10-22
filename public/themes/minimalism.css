@@ -1,0 +1,375 @@
+/**
+ * 共读小屋 · 主题：极简 (Minimalism)
+ *
+ * 参考：_reference/ui/minimalism-components.html
+ *
+ * 极简只认一件事：**少**。这套皮肤的四条铁律：
+ *   1. 留白舍得给 —— 元素之间拉得开，页面宁可空着也不塞
+ *   2. 字重很轻 —— 正文 300-400，标题 500，不做加粗喊叫
+ *   3. 只有黑白灰 —— 唯一的强调色就是黑 itself，没有第二个彩色
+ *   4. 不用阴影 —— 只留 1px 内描边，深度感全靠留白和分隔线
+ *
+ * 跟 Flat Design 的区别：flat 还有彩色块和明确边框，minimal 什么都不加。
+ *
+ * 夜间档不是把白天反过来，而是换成"深灰纸"：底更沉一点，正文不用纯白
+ * （纯白刺眼），用 #D8D8D8，靠极淡的对比度读。
+ * 字体全部走系统栈，零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   极简 / 白天
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"][data-mode="day"] {
+  --bg: #F7F7F7;
+  --bg-2: #FFFFFF;
+  --paper: #FFFFFF;
+  --ink: #1A1A1A;
+  --ink-soft: #8A8A8A;
+  --line: #E6E6E6;
+  --accent: #1A1A1A;
+  --on-accent: #FFFFFF;
+  --hl-mine: #C8C8C8;
+  --hl-ai: #B4B4B4;
+  --bub-mine: #FAFAFA;
+  --bub-ai: #F4F4F4;
+  --text-color: #1A1A1A;
+  --radius: 6px;
+  --radius-sm: 4px;
+  --shadow: none;
+  --shadow-sm: none;
+  --font-serif: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --danger: #C0392B;
+  --deco: none;
+  --deco-size: auto;
+}
+
+/* --------------------------------------------------------------------------
+   极简 / 夜间
+   "深灰纸"：底更沉，正文不用纯白
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"][data-mode="night"] {
+  --bg: #101010;
+  --bg-2: #181818;
+  --paper: #161616;
+  --ink: #D8D8D8;
+  --ink-soft: #7A7A7A;
+  --line: #2A2A2A;
+  --accent: #E8E8E8;
+  --on-accent: #101010;
+  --hl-mine: #2E2E2E;
+  --hl-ai: #262626;
+  --bub-mine: #1C1C1C;
+  --bub-ai: #191919;
+  --text-color: #D8D8D8;
+  --radius: 6px;
+  --radius-sm: 4px;
+  --shadow: none;
+  --shadow-sm: none;
+  --font-serif: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --danger: #E06C5A;
+  --deco: none;
+  --deco-size: auto;
+}
+
+/* --------------------------------------------------------------------------
+   去掉所有阴影，只留 1px 分隔线
+   极简不是"没有边框"，是"只有一条线"
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .login__card,
+body[data-theme="minimalism"] .book-card,
+body[data-theme="minimalism"] .shelf__hero,
+body[data-theme="minimalism"] .settings__group,
+body[data-theme="minimalism"] .stat,
+body[data-theme="minimalism"] .note-card,
+body[data-theme="minimalism"] .log-row,
+body[data-theme="minimalism"] .modal__box,
+body[data-theme="minimalism"] .anno-item,
+body[data-theme="minimalism"] .reader__content,
+body[data-theme="minimalism"] .sel-bar {
+  box-shadow: none !important;
+}
+
+/* 卡片：只有一条 1px 线，没有填充色变化 */
+body[data-theme="minimalism"] .login__card,
+body[data-theme="minimalism"] .book-card,
+body[data-theme="minimalism"] .settings__group,
+body[data-theme="minimalism"] .stat,
+body[data-theme="minimalism"] .note-card,
+body[data-theme="minimalism"] .log-row,
+body[data-theme="minimalism"] .anno-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+/* 顶栏和工具栏：不描边，只用底色分块 */
+body[data-theme="minimalism"] .topbar,
+body[data-theme="minimalism"] .reader__toolbar,
+body[data-theme="minimalism"] .reader__footer {
+  border-color: var(--line);
+  box-shadow: none;
+  background: var(--bg-2);
+}
+
+/* 书架封面：不用图标大圆，用一条线 + 极简的书脊 */
+body[data-theme="minimalism"] .book-card__cover {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 1.6rem;
+  opacity: .35;
+}
+
+/* --------------------------------------------------------------------------
+   按钮：没有底色块，只有黑底白字 or 白底黑字
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .btn,
+body[data-theme="minimalism"] .icon-btn,
+body[data-theme="minimalism"] .reader__back,
+body[data-theme="minimalism"] .toc__close,
+body[data-theme="minimalism"] .modal__close {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--ink);
+  box-shadow: none;
+  font-weight: 400;
+  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+body[data-theme="minimalism"] .btn:hover,
+body[data-theme="minimalism"] .icon-btn:hover {
+  border-color: var(--ink-soft);
+  background: var(--bg-2);
+}
+
+/* 主按钮：唯一的黑块 */
+body[data-theme="minimalism"] .btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+
+body[data-theme="minimalism"] .btn--primary:hover {
+  opacity: .86;
+}
+
+/* 次按钮 / AI 按钮：只改字重，不上色 */
+body[data-theme="minimalism"] .btn--ai {
+  background: transparent;
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+body[data-theme="minimalism"] .btn--danger {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--danger);
+  font-weight: 400;
+}
+
+/* --------------------------------------------------------------------------
+   字重：正文轻，标题中等，不喊叫
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .reader__content {
+  font-weight: 300;
+  line-height: 2.05;
+  letter-spacing: .015em;
+}
+
+body[data-theme="minimalism"] .reader__content .para {
+  font-weight: 300;
+}
+
+body[data-theme="minimalism"] .shelf__title,
+body[data-theme="minimalism"] .reader__title,
+body[data-theme="minimalism"] .reader__chapter-title,
+body[data-theme="minimalism"] .settings__title,
+body[data-theme="minimalism"] .modal__title,
+body[data-theme="minimalism"] .login__title {
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+
+/* 强调：不用粗体，用留白和一条细下划线 */
+body[data-theme="minimalism"] .bubble__name,
+body[data-theme="minimalism"] .anno-item__meta {
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+
+body[data-theme="minimalism"] .shelf__subtitle,
+body[data-theme="minimalism"] .book-card__meta,
+body[data-theme="minimalism"] .muted,
+body[data-theme="minimalism"] .format-hint {
+  color: var(--ink-soft);
+  font-weight: 300;
+}
+
+/* --------------------------------------------------------------------------
+   分段控件：极简的选中态 = 反色
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .seg {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  padding: 2px;
+  gap: 0;
+}
+
+body[data-theme="minimalism"] .seg__item {
+  border-radius: 3px;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+body[data-theme="minimalism"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   气泡：没有色块，只有一条左边线 + 淡底
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .bubble--mine {
+  background: var(--bub-mine);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  font-weight: 300;
+}
+
+body[data-theme="minimalism"] .bubble--ai {
+  background: var(--bub-ai);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--ink-soft);
+  border-radius: var(--radius-sm);
+  font-weight: 300;
+}
+
+body[data-theme="minimalism"] .bubble__text {
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* --------------------------------------------------------------------------
+   划线：极简的划线是一条细底线（不是荧光笔）
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .hl--mine,
+body[data-theme="minimalism"] .hl--ai {
+  background-image: none;
+  border-bottom: 1px solid var(--ink-soft);
+  text-decoration: none;
+  text-decoration-color: transparent;
+}
+
+body[data-theme="minimalism"] .hl--ai {
+  border-bottom-color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   输入框：只有一条下边线，没有框
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .field__input,
+body[data-theme="minimalism"] .field__textarea,
+body[data-theme="minimalism"] .login__input {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-left: 0;
+  padding-right: 0;
+  font-weight: 300;
+}
+
+body[data-theme="minimalism"] .field__input:focus,
+body[data-theme="minimalism"] .field__textarea:focus,
+body[data-theme="minimalism"] .login__input:focus {
+  border-bottom-color: var(--ink);
+  outline: none;
+}
+
+body[data-theme="minimalism"] .field__textarea {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+/* --------------------------------------------------------------------------
+   空状态 / 上传区：一圈虚线，不加底色
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .empty,
+body[data-theme="minimalism"] .upload-drop {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-soft);
+  font-weight: 300;
+}
+
+/* --------------------------------------------------------------------------
+   进度条：一条 2px 的线，没有轨道底
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .progress-bar {
+  height: 2px;
+  background: var(--line);
+  border-radius: 0;
+}
+
+body[data-theme="minimalism"] .progress-bar__fill {
+  background: var(--ink);
+  border-radius: 0;
+}
+
+/* --------------------------------------------------------------------------
+   小圆点（色卡 / 主题色卡）
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .swatch,
+body[data-theme="minimalism"] .theme-card__chip {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+body[data-theme="minimalism"] .swatch--active,
+body[data-theme="minimalism"] .theme-card--active {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   阅读纸面：白纸，不加框不加影
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .reader__content {
+  border: 0;
+  border-radius: 0;
+  background: var(--paper);
+  padding: 34px 30px 40px;
+  max-width: 40em;
+}
+
+/* 目录侧栏 / 批注面板：只靠左边线分栏 */
+body[data-theme="minimalism"] .toc,
+body[data-theme="minimalism"] .anno-panel {
+  border-color: var(--line);
+  box-shadow: none;
+  background: var(--bg-2);
+}
+
+/* --------------------------------------------------------------------------
+   主题网格分组标题：极简的分组就是一行小字
+   -------------------------------------------------------------------------- */
+body[data-theme="minimalism"] .theme-grid__group {
+  border-bottom: 1px solid var(--line);
+  font-weight: 400;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="共读小屋">
+<meta name="theme-color" content="#f6f1e7">
+<!-- 路径一律用相对路径：GitHub Pages 把站点挂在 /reading-nook/ 下面，
+     绝对路径 /app.css 会在公网上 404，本地跑又能用，两边都不挑。 -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="stylesheet" href="themes/liquid-glass.css">
+<link rel="stylesheet" href="themes/skeuomorph.css">
+<link rel="stylesheet" href="themes/bauhaus.css">
+<link rel="stylesheet" href="themes/material-design.css">
+<link rel="stylesheet" href="themes/neo-brutalism.css">
+<link rel="stylesheet" href="themes/acid-graphics.css">
+<link rel="stylesheet" href="themes/retrofuturism.css">
+<link rel="stylesheet" href="themes/anti-design.css">
+<link rel="stylesheet" href="themes/brutalism.css">
+<link rel="stylesheet" href="themes/flat-design.css">
+<link rel="stylesheet" href="themes/minimalism.css">
+<title>共读小屋</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-theme="cream-dog" data-mode="day">
+
+<!-- ══════════════ 登录 ══════════════ -->
+<div class="login" id="login">
+  <div class="login__card">
+    <div class="login__title">共读小屋</div>
+    <div class="login__hint" id="loginHint">输入密码进屋</div>
+    <input class="login__input" id="passcode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
+    <button class="btn btn--primary btn--block" id="loginBtn">进屋</button>
+    <div class="login__error" id="loginError"></div>
+
+    <!-- 连 GitHub：静态版（公网）划线要往仓库写，token 只存在这台设备的浏览器里。
+         本地版不需要这一段，app.js 会把它藏起来。 -->
+    <div class="login__gh hidden" id="loginGh">
+      <button class="login__gh-toggle" id="loginGhToggle" type="button">连上 GitHub（要划线才需要）</button>
+      <div class="login__gh-body hidden" id="loginGhBody">
+        <div class="login__gh-note">
+          只读也能进屋看。<br>
+          要划线、写想法，得把你的 GitHub token 粘进来 —— 它只存在这台设备的浏览器里，
+          不进仓库、不进代码、不上云。
+        </div>
+        <input class="login__input" id="ghToken" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+        <button class="btn btn--ghost btn--block btn--sm" id="ghTokenSave" type="button">保存 token</button>
+        <div class="login__gh-status" id="ghTokenStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 主应用 ══════════════ -->
+<div class="app hidden" id="app">
+  <header class="topbar">
+    <button class="icon-btn" id="btnHome" title="书架">☰</button>
+    <div class="topbar__title" id="topTitle">共读小屋</div>
+    <div class="topbar__actions">
+      <button class="icon-btn hidden" id="btnPending" title="姜去有话说">💬</button>
+      <button class="icon-btn" id="btnWorkbench" title="工作台">🖥️</button>
+      <button class="icon-btn" id="btnSettings" title="设置">⚙</button>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+
+    <!-- ───── 书架 ───── -->
+    <section class="shelf" id="viewShelf">
+      <div class="shelf__hero">
+        <h1 class="shelf__title">共读小屋</h1>
+        <div class="shelf__subtitle" id="shelfSubtitle">姜来 & 姜去</div>
+      </div>
+      <div class="shelf__tools">
+        <label class="btn btn--primary btn--sm">
+          传一本书
+          <input type="file" id="fileInput" accept=".txt,.text,.md,.epub,.docx,.fb2,text/plain,application/epub+zip" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+        </label>
+        <div class="upload-drop" id="uploadDrop">也可以把书拖到这里</div>
+      </div>
+      <div class="muted" id="formatHint" style="margin:2px 0 4px;font-size:.82rem;line-height:1.7"></div>
+      <div class="book-grid" id="bookGrid"></div>
+      <div class="empty hidden" id="shelfEmpty">书架还是空的。传一本书，我们就可以开始读了。</div>
+    </section>
+
+    <!-- ───── 阅读器 ───── -->
+    <section class="reader hidden" id="viewReader" data-bg="theme">
+      <div class="reader__toolbar">
+        <button class="icon-btn reader__back" id="btnBack" title="回书架">‹</button>
+        <div class="reader__title" id="readerTitle"></div>
+        <button class="icon-btn" id="btnAnnoMode" title="切换批注模式">✏️</button>
+        <button class="icon-btn" id="btnToc" title="目录">☰</button>
+        <button class="icon-btn" id="btnAnno" title="本章批注">💬</button>
+      </div>
+      <div class="reader__body" id="readerBody">
+        <div class="reader__content" id="readerContent"></div>
+      </div>
+      <div class="reader__footer">
+        <button class="btn btn--ghost btn--sm" id="btnPrev">‹ 上一章</button>
+        <span class="pill" id="readerProgress">1 / 1</span>
+        <button class="btn btn--ghost btn--sm" id="btnNext">下一章 ›</button>
+      </div>
+      <div class="reader__tap-left" id="tapLeft"></div>
+      <div class="reader__tap-right" id="tapRight"></div>
+    </section>
+
+    <!-- ───── 设置 ───── -->
+    <section class="settings hidden" id="viewSettings">
+      <div class="settings__group">
+        <div class="settings__title">主题</div>
+        <div class="theme-grid" id="themeGrid"></div>
+        <div class="settings__row">
+          <div class="settings__label">白天 / 夜间</div>
+          <div class="seg" id="modeSeg">
+            <div class="seg__item" data-mode="day">☀️ 白天</div>
+            <div class="seg__item" data-mode="night">🌙 夜间</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings__group">
+        <div class="settings__title">颜色（可单独调，互不影响）</div>
+        <div class="settings__row">
+          <div class="settings__label">我的划线色</div>
+          <div class="swatches" id="swatchHlMine"></div>
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">他回应后的划线色</div>
+          <div class="swatches" id="swatchHlAi"></div>
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">我的批注气泡</div>
+          <div class="swatches" id="swatchBubMine"></div>
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">他的批注气泡</div>
+          <div class="swatches" id="swatchBubAi"></div>
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">正文字色</div>
+          <div class="swatches" id="swatchText"></div>
+        </div>
+      </div>
+
+      <div class="settings__group">
+        <div class="settings__title">阅读背景</div>
+        <div class="seg" id="bgSeg">
+          <div class="seg__item" data-bg="theme">跟随主题</div>
+          <div class="seg__item" data-bg="white">纯白</div>
+          <div class="seg__item" data-bg="paper">仿真书页</div>
+          <div class="seg__item" data-bg="black">纯黑</div>
+          <div class="seg__item" data-bg="image">自传图片</div>
+        </div>
+        <div class="settings__row hidden" id="bgImageRow">
+          <div class="settings__label">背景图</div>
+          <label class="btn btn--ghost btn--sm">选一张
+            <input type="file" id="bgImageInput" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+          </label>
+        </div>
+      </div>
+
+      <div class="settings__group">
+        <div class="settings__title">翻页方式</div>
+        <div class="seg" id="turnSeg">
+          <div class="seg__item" data-turn="pager">左右翻页</div>
+          <div class="seg__item" data-turn="scroll">上下滑动</div>
+        </div>
+        <div class="settings__row hidden" id="lpStrategyRow">
+          <div class="settings__label">长按取词</div>
+          <div class="seg" id="lpSeg">
+            <div class="seg__item" data-lp="auto">跟系统</div>
+            <div class="seg__item" data-lp="self">我们自己</div>
+          </div>
+        </div>
+        <div class="muted" id="lpStrategyHint" style="font-size:.8rem;line-height:1.7;margin-top:6px"></div>
+        <div class="settings__row">
+          <div class="settings__label">字号</div>
+          <div class="seg" id="fontSeg">
+            <div class="seg__item" data-size="15">小</div>
+            <div class="seg__item" data-size="17">中</div>
+            <div class="seg__item" data-size="20">大</div>
+            <div class="seg__item" data-size="24">特大</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GitHub 连接：只有静态版（公网）才需要，本地版会把它藏起来 -->
+      <div class="settings__group hidden" id="ghSettingsGroup">
+        <div class="settings__title">GitHub 连接</div>
+        <div class="settings__row">
+          <div class="settings__label">数据在哪</div>
+          <div class="muted" id="ghRepoInfo" style="font-size:.82rem;line-height:1.7"></div>
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">Token</div>
+          <input class="field__input" id="setGhToken" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false" style="max-width:220px">
+        </div>
+        <div class="settings__row">
+          <div class="muted" id="ghConnStatus" style="font-size:.82rem;line-height:1.7"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn--primary btn--sm" id="btnSaveGhToken">保存</button>
+          <button class="btn btn--ghost btn--sm" id="btnClearGhToken">删掉 token</button>
+        </div>
+      </div>
+
+      <div class="settings__group">
+        <div class="settings__title">小屋</div>
+        <div class="settings__row">
+          <div class="settings__label">密码</div>
+          <input class="field__input" id="setPasscode" type="text" inputmode="numeric" maxlength="12" style="max-width:140px">
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">我的名字</div>
+          <input class="field__input" id="setUserName" type="text" maxlength="12" style="max-width:140px">
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">他的名字</div>
+          <input class="field__input" id="setAiName" type="text" maxlength="12" style="max-width:140px">
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">首页副标题</div>
+          <input class="field__input" id="setSubtitle" type="text" maxlength="40" style="max-width:200px">
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">外部帮工 Key</div>
+          <input class="field__input" id="setDeepseekKey" type="password" placeholder="留空则关闭外部 API" style="max-width:220px">
+        </div>
+        <div class="settings__row">
+          <div class="settings__label">帮工模型</div>
+          <select class="field__input" id="setDeepseekModel" style="max-width:220px">
+            <option value="deepseek-flash">deepseek-flash（便宜，干脏活）</option>
+            <option value="deepseek-v4-pro">deepseek-v4-pro（贵，讲究活）</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn--primary btn--sm" id="btnSaveSettings">保存</button>
+          <button class="btn btn--ghost btn--sm" id="btnResetSettings">恢复默认外观</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── 工作台 ───── -->
+    <section class="wb hidden" id="viewWorkbench">
+      <div class="wb__stats" id="wbStats"></div>
+      <div class="settings__group">
+        <div class="settings__title">每本书的剧情笔记</div>
+        <div class="wb__notes" id="wbNotes"></div>
+      </div>
+      <div class="settings__group">
+        <div class="settings__title">调用日志（帮工干过的每一笔活）</div>
+        <div class="wb__log" id="wbLog"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ══════════════ 目录侧栏 ══════════════ -->
+<div class="toc hidden" id="toc">
+  <div class="toc__head">
+    <span>目录</span>
+    <button class="icon-btn toc__close" id="tocClose">✕</button>
+  </div>
+  <div class="toc__list" id="tocList"></div>
+</div>
+
+<!-- ══════════════ 本章批注面板 ══════════════ -->
+<div class="anno-panel hidden" id="annoPanel">
+  <div class="anno-panel__head">
+    <span>本章批注</span>
+    <button class="icon-btn" id="annoClose">✕</button>
+  </div>
+  <div class="anno-list" id="annoList"></div>
+</div>
+
+<!-- ══════════════ 选区工具条 ══════════════ -->
+<div class="sel-bar hidden" id="selBar">
+  <div class="sel-bar__btn" data-act="highlight">划线</div>
+  <div class="sel-bar__btn" data-act="note">写想法</div>
+</div>
+
+<!-- ══════════════ 写想法弹窗 ══════════════ -->
+<div class="modal hidden" id="modal">
+  <div class="modal__mask" data-close="1"></div>
+  <div class="modal__box">
+    <div class="modal__head">
+      <div class="modal__title" id="modalTitle">写点什么</div>
+      <button class="icon-btn modal__close" id="modalClose">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="anno-item__anchor" id="modalAnchor"></div>
+      <textarea class="field__textarea" id="modalText" rows="5" placeholder="你怎么看这一段？"></textarea>
+    </div>
+    <div class="modal__foot btn-row">
+      <button class="btn btn--primary btn--sm" id="modalSave">存下</button>
+      <button class="btn btn--ghost btn--sm" id="modalCancel">算了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 生成剧情笔记 · 确认弹窗 ══════════════ -->
+<div class="modal hidden" id="genModal">
+  <div class="modal__mask" data-close="1"></div>
+  <div class="modal__box">
+    <div class="modal__head">
+      <div class="modal__title">生成剧情笔记</div>
+      <button class="icon-btn modal__close" id="genClose">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="muted" id="genInfo" style="margin-bottom:10px"></div>
+      <div class="settings__row">
+        <div class="settings__label">预算上限</div>
+        <input class="field__input" id="genBudget" type="number" min="0" step="0.01" style="max-width:120px">
+        <span class="muted" style="margin-left:8px">元（花到就停）</span>
+      </div>
+      <div class="muted" id="genHint" style="margin-top:10px;font-size:.82rem;line-height:1.6"></div>
+    </div>
+    <div class="modal__foot btn-row">
+      <button class="btn btn--primary btn--sm" id="genStart">开始生成</button>
+      <button class="btn btn--ghost btn--sm" id="genCancel">算了</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 加密核心 + GitHub 存储适配器。app.js 会看 site.json 决定走本地 API 还是 GitHub。 -->
+<script src="vault.js"></script>
+<script src="gh-api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

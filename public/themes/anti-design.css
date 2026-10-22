@@ -1,0 +1,833 @@
+/**
+ * 共读小屋 · 主题：反设计 (Anti-Design)
+ *
+ * 参考：_reference/ui/anti-design-components.html（朋克版 · 主参考）
+ *       _reference/ui/anti-design-components-lite.html（温和版 · 白天档取色）
+ *
+ * 反设计 = 故意跟"整齐、克制、优雅"对着干。它最容易翻车的地方是变成一坨
+ * 难看的垃圾，所以这套皮肤把"叛逆"关在装饰层里，正文层始终端正。四条铁律：
+ *   1. 故意不整齐 —— 元素要有旋转、错位、歪斜；但只许用在装饰元素
+ *      （封面、色卡、图标、按钮），正文段落、卡片主体、阅读区一律端正
+ *   2. 双向偏移阴影 —— 正向 + 反向两个方向各压一块纯色影子，这是 anti-design 的签名
+ *   3. 原色硬碰 —— 红 / 蓝 / 绿 / 黄直接撞，不做渐变过渡（只有硬色块条纹）
+ *   4. 等宽字体 + 贴纸感 —— 像街头海报、贴纸、传单
+ *
+ * 昼夜两档：
+ *   白天 = 温和版：米白街面 #F8F5F0 + 白纸面 + 撞色双向阴影 + 少量歪斜
+ *   夜间 = 朋克版：深灰街面 #2D2D2D + 浅色海报面板 + 霓虹双向阴影 + 更放肆的旋转
+ *   两档的正文都是"浅纸面 + 深色字"，夜里也能读；撞色只出现在装饰上。
+ *
+ * 字体全部走系统栈近似（Space Mono → Cascadia/Consolas，Impact → 海报黑体，
+ * Comic Sans → 手写体），零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   反设计 / 白天
+   米白街面 + 白纸面 + 红蓝双向偏移阴影（温和版）
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"][data-mode="day"] {
+  --bg: #F8F5F0;
+  --bg-2: #FFFFFF;
+  --paper: #FFFFFF;
+  --ink: #1A1A1A;
+  --ink-soft: #6E6E6E;
+  --line: #E0DCD5;
+  --accent: #E8364E;
+  --on-accent: #FFFFFF;
+  --hl-mine: #FACC15;
+  --hl-ai: #22C55E;
+  --bub-mine: #FFE066;
+  --bub-ai: #2D5BFF;
+  --text-color: #1A1A1A;
+  --radius: 6px 20px 6px 20px;
+  --radius-sm: 3px 12px 3px 12px;
+  --shadow: 6px 6px 0 var(--accent), -3px -3px 0 var(--anti-blue);
+  --shadow-sm: 4px 4px 0 var(--accent), -2px -2px 0 var(--anti-blue);
+  --font-serif: "Space Mono", "Cascadia Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", "Songti SC", monospace;
+  --font-sans: "Space Mono", "Cascadia Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #D6202F;
+  /* 撞色备用色：阴影、条纹、装饰块用 */
+  --anti-blue: #2D5BFF;
+  --anti-green: #22C55E;
+  --anti-yellow: #FACC15;
+  /* 背景装饰：错位色块（红蓝套印不准）+ 黄条 + 斜划痕 */
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Crect x='14' y='16' width='48' height='48' fill='%23E8364E' fill-opacity='.13'/%3E%3Crect x='32' y='34' width='48' height='48' fill='%232D5BFF' fill-opacity='.11'/%3E%3Cpath d='M150 14 h74 v14 h-74 z' fill='%23FACC15' fill-opacity='.28'/%3E%3Cpath d='M16 214 l64 -40' stroke='%231A1A1A' stroke-width='7' stroke-opacity='.09' stroke-linecap='square'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(45deg, rgba(26, 26, 26, .05) 0 2px, transparent 2px 14px);
+  --deco-size: 240px 240px, auto;
+}
+
+/* --------------------------------------------------------------------------
+   反设计 / 夜间
+   深灰街面 + 浅色海报面板 + 霓虹绿蓝双向偏移阴影（朋克版）
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"][data-mode="night"] {
+  --bg: #2D2D2D;
+  --bg-2: #F2EFE8;
+  --paper: #FFFFFF;
+  --ink: #2D2D2D;
+  --ink-soft: #6A6A6A;
+  --line: #2D2D2D;
+  --accent: #E8213C;
+  --on-accent: #FFFFFF;
+  --hl-mine: #FFE600;
+  --hl-ai: #00E05A;
+  --bub-mine: #FFE600;
+  --bub-ai: #2D5BFF;
+  --text-color: #2D2D2D;
+  --radius: 6px 20px 6px 20px;
+  --radius-sm: 3px 12px 3px 12px;
+  --shadow: 8px 8px 0 var(--anti-green), -4px -4px 0 var(--anti-blue);
+  --shadow-sm: 5px 5px 0 var(--anti-green), -2px -2px 0 var(--anti-blue);
+  --font-serif: "Space Mono", "Cascadia Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", "Songti SC", monospace;
+  --font-sans: "Space Mono", "Cascadia Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #C8102E;
+  /* 撞色备用色：夜里换成霓虹，饱和度拉满 */
+  --anti-blue: #2D5BFF;
+  --anti-green: #00FF66;
+  --anti-yellow: #FFE600;
+  /* 背景装饰：霓虹错位色块 + 网点 */
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Crect x='14' y='16' width='48' height='48' fill='%2300FF66' fill-opacity='.15'/%3E%3Crect x='32' y='34' width='48' height='48' fill='%232D5BFF' fill-opacity='.22'/%3E%3Cpath d='M150 14 h74 v14 h-74 z' fill='%23FFE600' fill-opacity='.18'/%3E%3Cpath d='M16 214 l64 -40' stroke='%23FFFFFF' stroke-width='7' stroke-opacity='.10' stroke-linecap='square'/%3E%3C/svg%3E"),
+    radial-gradient(circle, rgba(255, 255, 255, .055) 1px, transparent 1.3px);
+  --deco-size: 240px 240px, 13px 13px;
+}
+
+/* --------------------------------------------------------------------------
+   1. 海报字体：Impact 系（近似 Bangers）+ 手写体（近似 Permanent Marker）
+   全部系统栈，不引任何外部字体
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .shelf__title,
+body[data-theme="anti-design"] .login__title,
+body[data-theme="anti-design"] .modal__title,
+body[data-theme="anti-design"] .stat__num,
+body[data-theme="anti-design"] .book-card__title {
+  font-family: "Impact", "Haettenschweiler", "Arial Black", "Arial Narrow", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 900;
+  letter-spacing: .01em;
+}
+
+body[data-theme="anti-design"] .bubble__name,
+body[data-theme="anti-design"] .component-label,
+body[data-theme="anti-design"] .note-card__ch {
+  font-family: "Comic Sans MS", "Segoe Print", "Bradley Hand", "KaiTi", "PingFang SC", "Microsoft YaHei", cursive;
+}
+
+/* --------------------------------------------------------------------------
+   2. 贴纸底座：所有"面"都换成硬边 + 双向偏移阴影
+   卡片主体一律端正 —— 歪斜只留给里面的装饰件
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .login__card,
+body[data-theme="anti-design"] .shelf__hero,
+body[data-theme="anti-design"] .modal__box {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="anti-design"] .book-card,
+body[data-theme="anti-design"] .settings__group,
+body[data-theme="anti-design"] .stat,
+body[data-theme="anti-design"] .note-card,
+body[data-theme="anti-design"] .anno-item {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="anti-design"] .log-row {
+  border: 2px solid var(--ink);
+  border-left-width: 7px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+body[data-theme="anti-design"] .topbar {
+  background: var(--bg-2);
+  border-bottom: 2px solid var(--ink);
+}
+
+body[data-theme="anti-design"] .reader__toolbar {
+  background: var(--bg-2);
+  border-bottom: 2px solid var(--ink);
+}
+
+body[data-theme="anti-design"] .reader__footer {
+  background: var(--bg-2);
+  border-top: 2px solid var(--ink);
+}
+
+body[data-theme="anti-design"] .toc {
+  background: var(--bg-2);
+  border-right: 2px solid var(--ink);
+}
+
+body[data-theme="anti-design"] .anno-panel {
+  background: var(--bg-2);
+  border-left: 2px solid var(--ink);
+}
+
+body[data-theme="anti-design"] .toc__head,
+body[data-theme="anti-design"] .anno-panel__head,
+body[data-theme="anti-design"] .modal__head {
+  border-bottom: 2px solid var(--ink);
+}
+
+body[data-theme="anti-design"] .modal__foot {
+  border-top: 2px solid var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   3. 撞色条纹：硬色块，不做渐变过渡
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .shelf__hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0 18px,
+    var(--anti-blue) 18px 36px,
+    var(--anti-green) 36px 54px,
+    var(--anti-yellow) 54px 72px
+  );
+  transform: skewX(-4deg);
+  transform-origin: left top;
+}
+
+body[data-theme="anti-design"] .reader__chapter-title {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  letter-spacing: .02em;
+  border-bottom: 4px solid var(--accent);
+  padding-bottom: .45em;
+}
+
+/* --------------------------------------------------------------------------
+   4. 按钮：贴纸 + 微歪（歪斜只在这一层）
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .btn,
+body[data-theme="anti-design"] .icon-btn,
+body[data-theme="anti-design"] .reader__back,
+body[data-theme="anti-design"] .toc__close,
+body[data-theme="anti-design"] .modal__close {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 var(--accent), -2px -2px 0 var(--anti-blue);
+}
+
+body[data-theme="anti-design"] .btn {
+  transform: rotate(-1deg);
+}
+
+body[data-theme="anti-design"] .icon-btn {
+  transform: rotate(2deg);
+}
+
+body[data-theme="anti-design"] .btn--block {
+  transform: none;
+}
+
+body[data-theme="anti-design"] .btn:hover,
+body[data-theme="anti-design"] .icon-btn:hover,
+body[data-theme="anti-design"] .reader__back:hover,
+body[data-theme="anti-design"] .toc__close:hover,
+body[data-theme="anti-design"] .modal__close:hover {
+  background: var(--accent);
+  border-color: var(--ink);
+  color: var(--on-accent);
+  box-shadow: 6px 6px 0 var(--anti-blue), -3px -3px 0 var(--accent);
+}
+
+body[data-theme="anti-design"] .btn:active {
+  transform: rotate(-1deg) translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--accent);
+}
+
+body[data-theme="anti-design"] .icon-btn:active {
+  transform: rotate(2deg) scale(.94);
+}
+
+body[data-theme="anti-design"] .btn--primary {
+  background: var(--accent);
+  border-color: var(--ink);
+  color: var(--on-accent);
+  box-shadow: 5px 5px 0 var(--anti-yellow), -2px -2px 0 var(--ink);
+}
+
+body[data-theme="anti-design"] .btn--primary:hover {
+  background: var(--ink);
+  color: var(--bg-2);
+  box-shadow: 6px 6px 0 var(--accent);
+}
+
+body[data-theme="anti-design"] .btn--ai {
+  background: var(--bub-ai);
+  border-color: var(--ink);
+  color: #FFFFFF;
+}
+
+body[data-theme="anti-design"] .btn--ai:hover {
+  background: var(--ink);
+  color: var(--bg-2);
+}
+
+body[data-theme="anti-design"] .btn--ghost {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--ink);
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+body[data-theme="anti-design"] .btn--ghost:hover {
+  background: var(--bg-2);
+  color: var(--ink);
+  border-style: solid;
+  box-shadow: 4px 4px 0 var(--accent);
+}
+
+body[data-theme="anti-design"] .btn--danger {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: 4px 4px 0 var(--danger);
+}
+
+body[data-theme="anti-design"] .btn--sm {
+  border-radius: 2px 10px 2px 10px;
+  font-size: .76rem;
+}
+
+body[data-theme="anti-design"] .icon-btn--on {
+  background: var(--accent);
+  border-color: var(--ink);
+  color: var(--on-accent);
+}
+
+/* --------------------------------------------------------------------------
+   5. 装饰件歪斜区：封面 / 色卡 / 图标 —— 只这几个会歪
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .book-card__cover {
+  border: 2px solid var(--ink);
+  border-radius: 0 18px 0 18px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .04em;
+  box-shadow: 4px 4px 0 var(--accent), -2px -2px 0 var(--anti-blue);
+  transform: rotate(-2deg);
+}
+
+body[data-theme="anti-design"] .swatch {
+  border: 2px solid var(--ink);
+  border-radius: 0 12px 0 12px;
+  box-shadow: none;
+  transform: rotate(-4deg);
+}
+
+body[data-theme="anti-design"] .swatch__chip {
+  border-radius: 0 12px 0 12px;
+}
+
+body[data-theme="anti-design"] .swatch:hover {
+  transform: rotate(-4deg) scale(1.06);
+}
+
+body[data-theme="anti-design"] .swatch--active {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px var(--bg-2), 0 0 0 5px var(--accent);
+}
+
+body[data-theme="anti-design"] .palette__dot {
+  border: 2px solid var(--ink);
+  border-radius: 0 10px 0 10px;
+  transform: rotate(3deg);
+}
+
+body[data-theme="anti-design"] .palette__dot:hover {
+  transform: rotate(3deg) scale(1.1);
+}
+
+body[data-theme="anti-design"] .theme-card {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+body[data-theme="anti-design"] .theme-card__chip {
+  border: 2px solid var(--ink);
+  border-radius: 0 14px 0 14px;
+  box-shadow: 3px 3px 0 var(--accent);
+  transform: rotate(-6deg);
+}
+
+body[data-theme="anti-design"] .theme-card--active {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   6. 标题：海报字 + 错位文字阴影（标题可以歪，正文不行）
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .shelf__title {
+  display: inline-block;
+  color: var(--accent);
+  text-transform: uppercase;
+  transform: rotate(-1.2deg);
+  text-shadow: 2px 2px 0 var(--anti-yellow);
+}
+
+body[data-theme="anti-design"] .login__title {
+  display: inline-block;
+  color: var(--accent);
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+  text-shadow: 2px 2px 0 var(--anti-blue);
+}
+
+body[data-theme="anti-design"] .modal__title {
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+body[data-theme="anti-design"] .topbar__title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+body[data-theme="anti-design"] .shelf__subtitle {
+  font-family: var(--font-sans);
+  color: var(--ink-soft);
+  text-decoration: underline wavy var(--anti-blue);
+  text-underline-offset: 4px;
+}
+
+body[data-theme="anti-design"] .book-card__title {
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+body[data-theme="anti-design"] .book-card__meta,
+body[data-theme="anti-design"] .muted,
+body[data-theme="anti-design"] .stat__label,
+body[data-theme="anti-design"] .login__hint,
+body[data-theme="anti-design"] .anno-item__meta,
+body[data-theme="anti-design"] .log-row__meta {
+  font-family: var(--font-sans);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+body[data-theme="anti-design"] .stat {
+  border-top: 7px solid var(--accent);
+}
+
+body[data-theme="anti-design"] .stat__num {
+  color: var(--accent);
+  text-shadow: 2px 2px 0 var(--anti-yellow);
+}
+
+body[data-theme="anti-design"] .note-card__ch {
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   7. 阅读区：这一段必须端正 —— 不歪、不加彩色文字、只留白
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .reader__body {
+  background-color: var(--bg);
+}
+
+body[data-theme="anti-design"] .reader__content {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--read-ink);
+  font-family: var(--font-serif);
+  padding: 30px 28px 36px;
+}
+
+/* 正文段落明确不歪 —— 铁律 1 的底线 */
+body[data-theme="anti-design"] .para {
+  transform: none;
+  text-indent: 2em;
+  text-align: justify;
+}
+
+body[data-theme="anti-design"] .reader__title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+
+body[data-theme="anti-design"] .reader__tap-left,
+body[data-theme="anti-design"] .reader__tap-right {
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   8. 划线：撞色荧光带 —— 黄/绿，必须在正文上看得清
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .hl--mine,
+body[data-theme="anti-design"] .para--hl-mine {
+  background-image: linear-gradient(transparent 58%, var(--hl-mine) 58%, var(--hl-mine) 92%, transparent 92%);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hl-mine);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+body[data-theme="anti-design"] .hl--ai,
+body[data-theme="anti-design"] .para--hl-ai {
+  background-image: linear-gradient(transparent 58%, var(--hl-ai) 58%, var(--hl-ai) 92%, transparent 92%);
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hl-ai);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* 夜里划线：app.css 的"划线对比度兜底"（body[data-mode="night"][data-theme] .hl--mine，
+   特异性 0,3,1）会给划线色压一层 42% 的暗色。这套皮肤夜里是"白纸面 + 深色字"，
+   压暗之后霓虹黄变暗黄、深色正文压上去就看不清了（对比度掉到 3.4:1）。
+   所以这里多写一级特异性（多一个 .hl），把夜里换回原色带 + 深色字。 */
+body[data-theme="anti-design"][data-mode="night"] .hl.hl--mine {
+  background-image:
+    linear-gradient(transparent 88%, rgba(107, 63, 82, .55) 88%, rgba(107, 63, 82, .55) 97%, transparent 97%),
+    linear-gradient(transparent 58%, var(--hl-mine) 58%, var(--hl-mine) 92%, transparent 92%);
+  text-decoration-color: var(--hl-mine);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .hl.hl--ai {
+  background-image:
+    linear-gradient(transparent 88%, rgba(63, 90, 134, .55) 88%, rgba(63, 90, 134, .55) 97%, transparent 97%),
+    linear-gradient(transparent 58%, var(--hl-ai) 58%, var(--hl-ai) 92%, transparent 92%);
+  text-decoration-color: var(--hl-ai);
+}
+
+body[data-theme="anti-design"] .anno-item__anchor {
+  border-left: 5px solid var(--hl-mine);
+  color: var(--ink-soft);
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   9. 气泡 / 批注：贴纸气泡，字要能读
+   --------------------------------------------------------------------------
+   app.css 的"气泡对比度兜底"（body[data-mode=…][data-theme] .bubble--ai，特异性 0,3,1）
+   站在本文件（0,2,1）上面：夜里给气泡刷一层近黑 wash、白天刷一层近白 wash，
+   文字色一律 var(--ink)。那层兜底是按"夜 = 深底浅字"写的，
+   而这套皮肤白天夜里都是"浅纸面 + 深色字"，夜里一刷近黑 wash 就成了深底深字。
+   所以这里多写一级特异性（多一个 .bubble），两档都改成浅 wash：
+   气泡底永远是浅色、原色透出来 28%，字永远是 var(--ink)（深），
+   用户自己挑的浅色气泡色也压得住。 */
+body[data-theme="anti-design"][data-mode="day"] .bubble.bubble--mine {
+  background: linear-gradient(rgba(255, 255, 255, .72), rgba(255, 255, 255, .72)), var(--bub-mine);
+}
+
+body[data-theme="anti-design"][data-mode="day"] .bubble.bubble--ai {
+  background: linear-gradient(rgba(255, 255, 255, .72), rgba(255, 255, 255, .72)), var(--bub-ai);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .bubble.bubble--mine {
+  background: linear-gradient(rgba(242, 239, 232, .72), rgba(242, 239, 232, .72)), var(--bub-mine);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .bubble.bubble--ai {
+  background: linear-gradient(rgba(242, 239, 232, .72), rgba(242, 239, 232, .72)), var(--bub-ai);
+}
+
+body[data-theme="anti-design"] .bubble--mine {
+  background: var(--bub-mine);
+  border: 2px solid var(--ink);
+  border-radius: 0 16px 0 16px;
+  color: var(--ink);
+}
+
+body[data-theme="anti-design"] .bubble--ai {
+  background: var(--bub-ai);
+  border: 2px solid var(--ink);
+  border-radius: 16px 0 16px 0;
+  color: var(--ink);
+}
+
+body[data-theme="anti-design"] .bubble__name {
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+body[data-theme="anti-design"] .anno-item--replied {
+  border-left: 7px solid var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   10. 选区工具条：贴纸横条
+   注意：.sel-bar 靠 translateX(-50%) 定位，所以这里绝不加 transform
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .sel-bar {
+  border: 2px solid var(--ink);
+  border-radius: 4px 0 4px 0;
+  background: var(--bg-2);
+  box-shadow: 5px 5px 0 var(--accent), -2px -2px 0 var(--anti-blue);
+  padding: 3px;
+}
+
+body[data-theme="anti-design"] .sel-bar__btn {
+  border-radius: 2px 10px 2px 10px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+body[data-theme="anti-design"] .sel-bar__btn:active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* --------------------------------------------------------------------------
+   11. 表单：输入框绝不歪（打字的地方必须平）
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .field__input,
+body[data-theme="anti-design"] .field__textarea,
+body[data-theme="anti-design"] .login__input {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: .95rem;
+}
+
+body[data-theme="anti-design"] .field__input:focus,
+body[data-theme="anti-design"] .field__textarea:focus,
+body[data-theme="anti-design"] .login__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 4px 4px 0 var(--accent);
+}
+
+body[data-theme="anti-design"] .field__textarea {
+  font-family: var(--font-serif);
+  line-height: 1.8;
+}
+
+/* 分段控件：一排歪着的小标签 */
+body[data-theme="anti-design"] .seg {
+  gap: 0;
+  padding: 3px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+body[data-theme="anti-design"] .seg__item {
+  border-radius: 2px 10px 2px 10px;
+  font-family: var(--font-sans);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+body[data-theme="anti-design"] .seg__item:nth-child(odd) { transform: rotate(-1deg); }
+body[data-theme="anti-design"] .seg__item:nth-child(even) { transform: rotate(1deg); }
+
+body[data-theme="anti-design"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 900;
+  transform: rotate(-1deg);
+}
+
+/* 开关：菱形旋钮（旋钮是装饰件，转一下没问题） */
+body[data-theme="anti-design"] .toggle {
+  border: 2px solid var(--ink);
+  border-radius: 4px 14px 4px 14px;
+  background: var(--bg-2);
+}
+
+body[data-theme="anti-design"] .toggle::after {
+  border-radius: 50% 0 50% 0;
+  background: var(--accent);
+}
+
+body[data-theme="anti-design"] .toggle--on {
+  background: var(--accent);
+  border-color: var(--ink);
+}
+
+body[data-theme="anti-design"] .toggle--on::after {
+  background: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   12. 标签 / 空状态 / 进度条
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .pill {
+  border: 2px solid var(--ink);
+  border-radius: 2px 12px 2px 12px;
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+body[data-theme="anti-design"] .empty,
+body[data-theme="anti-design"] .upload-drop {
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+}
+
+body[data-theme="anti-design"] .upload-drop:hover,
+body[data-theme="anti-design"] .upload-drop.is-over {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+body[data-theme="anti-design"] .progress-bar {
+  height: 13px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--bg-2);
+}
+
+body[data-theme="anti-design"] .progress-bar__fill {
+  border-radius: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0 9px,
+    var(--anti-yellow) 9px 18px
+  );
+}
+
+/* --------------------------------------------------------------------------
+   13. 提示条 / 目录 / 弹窗里的零碎
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"] .toast {
+  background: var(--ink);
+  color: var(--bg-2);
+  border: 2px solid var(--accent);
+  border-radius: 2px 16px 2px 16px;
+  font-family: var(--font-sans);
+  box-shadow: 4px 4px 0 var(--accent);
+}
+
+body[data-theme="anti-design"] .toc__item {
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+}
+
+body[data-theme="anti-design"] .toc__item:hover {
+  background: var(--paper);
+}
+
+body[data-theme="anti-design"] .toc__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+body[data-theme="anti-design"] .toc__head::before {
+  color: var(--accent);
+  font-weight: 900;
+  transform: rotate(-8deg);
+  display: inline-block;
+}
+
+body[data-theme="anti-design"] .settings__title::before {
+  border-radius: 0;
+  background: var(--accent);
+  transform: skewX(-12deg);
+}
+
+body[data-theme="anti-design"] .settings__row + .settings__row {
+  border-top: 1px dashed var(--ink);
+}
+
+body[data-theme="anti-design"] .settings__label {
+  font-family: var(--font-sans);
+  font-size: .82rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+body[data-theme="anti-design"] .log-row--err {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* --------------------------------------------------------------------------
+   14. 夜里加一档放肆：装饰件的旋转幅度更大
+   -------------------------------------------------------------------------- */
+body[data-theme="anti-design"][data-mode="night"] .book-card__cover {
+  transform: rotate(-3.5deg);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .btn {
+  transform: rotate(-1.6deg);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .icon-btn {
+  transform: rotate(3.5deg);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .shelf__title {
+  transform: rotate(-2deg);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .swatch {
+  transform: rotate(-7deg);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .swatch:hover {
+  transform: rotate(-7deg) scale(1.06);
+}
+
+body[data-theme="anti-design"][data-mode="night"] .theme-card__chip {
+  transform: rotate(-9deg);
+}
+
+/* --------------------------------------------------------------------------
+   15. 动效敏感的用户：把歪斜收掉，但保留贴纸感
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme="anti-design"] .btn,
+  body[data-theme="anti-design"] .icon-btn,
+  body[data-theme="anti-design"] .book-card__cover,
+  body[data-theme="anti-design"] .swatch,
+  body[data-theme="anti-design"] .swatch:hover,
+  body[data-theme="anti-design"] .palette__dot,
+  body[data-theme="anti-design"] .palette__dot:hover,
+  body[data-theme="anti-design"] .theme-card__chip,
+  body[data-theme="anti-design"] .shelf__title,
+  body[data-theme="anti-design"] .login__title,
+  body[data-theme="anti-design"] .seg__item,
+  body[data-theme="anti-design"] .seg__item--active {
+    transform: none;
+  }
+}

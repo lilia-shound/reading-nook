@@ -1,0 +1,513 @@
+/**
+ * 共读小屋 · 主题：拟物化 (Skeuomorphism)
+ *
+ * 参考：_reference/ui/skeuomorphism-components.html
+ *       _reference/ui/skeuomorphism-audio-deck.html（更精细的拟物质感）
+ *
+ * 拟物化和新拟物（neumorph）只差一层皮，核心是这五件事：
+ *   1) 双向阴影：左上打白高光、右下压棕暗部，元素才真的从面板上「浮」起来。
+ *      单一阴影是新拟物，亮暗成对才是拟物。
+ *   2) 凸面用 linear-gradient(180deg, 浅 → 深)，凹面把渐变反过来；
+ *      按钮按下去换成 inset 阴影 + 反向渐变，像被按进面板里。
+ *   3) 材质是实的：面板是米色纸 + 木纹，--bg-2 / --paper 全部不透明，
+ *      不靠半透明和模糊撑场面（那是玻璃那套的事）。
+ *   4) 凹进去的输入框、凹槽进度条、圆形旋钮 —— 像一台收音机的面板。
+ *   5) 圆角克制（8 / 6 / 4px），边缘留一圈更亮的描边勾出实体轮廓。
+ *
+ * 夜间档是同一套逻辑换成深胡桃木：底色压深、阴影对比加强，
+ * 高光从纯白改成暖铜色，材质不变，只是换了木头。
+ */
+
+/* --------------------------------------------------------------------------
+   拟物化 / 白天
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"][data-mode="day"] {
+  --bg: #F5E6D3;
+  --bg-2: #EED9C4;
+  --paper: #FFF8DC;
+  --ink: #4A3728;
+  --ink-soft: #8B7355;
+  --line: rgba(160, 82, 45, .20);
+  --accent: #B8860B;
+  --on-accent: #FFF8DC;
+  --hl-mine: #E9C46A;
+  --hl-ai: #8FB8A8;
+  --bub-mine: #FFF3DA;
+  --bub-ai: #E4DAC0;
+  --text-color: #4A3728;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow: 4px 4px 8px rgba(160, 82, 45, .30), -2px -2px 6px rgba(255, 255, 255, .70);
+  --shadow-sm: 2px 3px 6px rgba(160, 82, 45, .30), -1px -1px 4px rgba(255, 255, 255, .50);
+  --font-serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "STSong", Georgia, "Times New Roman", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --deco:
+    repeating-linear-gradient(102deg, rgba(160, 82, 45, .05) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(12deg, rgba(255, 255, 255, .32) 0 1px, transparent 1px 5px);
+  --deco-size: auto, auto;
+
+  /* 拟物专用：材质面 / 井槽 / 边缘 / 高光 / 暗部 */
+  --skeu-face: #F5E6D3;
+  --skeu-face-2: #DEB887;
+  --skeu-well: #E2CBAA;
+  --skeu-well-2: #F0E0C6;
+  --skeu-paper-2: #F4E5C4;
+  --skeu-paper-sheen: rgba(255, 255, 255, .55);
+  --skeu-edge: rgba(160, 82, 45, .20);
+  --skeu-hi: rgba(255, 255, 255, .70);
+  --skeu-hi-soft: rgba(255, 255, 255, .45);
+  --skeu-lo: rgba(160, 82, 45, .30);
+  --skeu-inset-lo: rgba(160, 82, 45, .30);
+  --skeu-inset-hi: rgba(255, 255, 255, .45);
+  --skeu-brass: linear-gradient(180deg, #E0B457 0%, #B8860B 55%, #8A6510 100%);
+  --skeu-screw: rgba(160, 82, 45, .35);
+}
+
+/* --------------------------------------------------------------------------
+   拟物化 / 夜间 —— 深胡桃木 + 铜色高光
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"][data-mode="night"] {
+  --bg: #241A12;
+  --bg-2: #33251A;
+  --paper: #1E160F;
+  --ink: #F0DFC6;
+  --ink-soft: #B49C7C;
+  --line: rgba(122, 88, 53, .55);
+  --accent: #D9A441;
+  --on-accent: #2A1F16;
+  --hl-mine: #7A5A1E;
+  --hl-ai: #2F5A50;
+  --bub-mine: #4A3729;
+  --bub-ai: #2C3B36;
+  --text-color: #F0DFC6;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow: 4px 4px 10px rgba(0, 0, 0, .62), -2px -2px 6px rgba(214, 170, 104, .16);
+  --shadow-sm: 2px 3px 6px rgba(0, 0, 0, .52), -1px -1px 4px rgba(214, 170, 104, .12);
+  --font-serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "STSong", Georgia, "Times New Roman", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --deco:
+    repeating-linear-gradient(102deg, rgba(0, 0, 0, .24) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(12deg, rgba(217, 164, 65, .06) 0 1px, transparent 1px 5px);
+  --deco-size: auto, auto;
+
+  /* 同一套逻辑，木头换成深胡桃木，高光换成铜色 */
+  --skeu-face: #3E2E20;
+  --skeu-face-2: #241A12;
+  --skeu-well: #1A120B;
+  --skeu-well-2: #2E2116;
+  --skeu-paper-2: #2A1F16;
+  --skeu-paper-sheen: rgba(226, 186, 122, .07);
+  --skeu-edge: rgba(122, 88, 53, .55);
+  --skeu-hi: rgba(226, 186, 122, .16);
+  --skeu-hi-soft: rgba(226, 186, 122, .10);
+  --skeu-lo: rgba(0, 0, 0, .60);
+  --skeu-inset-lo: rgba(0, 0, 0, .60);
+  --skeu-inset-hi: rgba(226, 186, 122, .12);
+  --skeu-brass: linear-gradient(180deg, #E7BE6A 0%, #C08A2A 55%, #8A6218 100%);
+  --skeu-screw: rgba(226, 186, 122, .22);
+}
+
+/* --------------------------------------------------------------------------
+   1. 凸起面板：材质渐变 + 双向阴影 + 一圈亮描边
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .topbar,
+body[data-theme="skeuomorph"] .reader__toolbar,
+body[data-theme="skeuomorph"] .reader__footer,
+body[data-theme="skeuomorph"] .book-card,
+body[data-theme="skeuomorph"] .shelf__hero,
+body[data-theme="skeuomorph"] .settings__group,
+body[data-theme="skeuomorph"] .stat,
+body[data-theme="skeuomorph"] .note-card,
+body[data-theme="skeuomorph"] .log-row,
+body[data-theme="skeuomorph"] .modal__box,
+body[data-theme="skeuomorph"] .anno-panel,
+body[data-theme="skeuomorph"] .toc,
+body[data-theme="skeuomorph"] .anno-item,
+body[data-theme="skeuomorph"] .login__card {
+  background:
+    linear-gradient(180deg, var(--skeu-hi-soft), transparent 38%),
+    linear-gradient(135deg, var(--skeu-face), var(--skeu-face-2));
+  border: 1px solid var(--skeu-edge);
+  box-shadow:
+    4px 4px 8px var(--skeu-lo),
+    -2px -2px 6px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+/* 顶栏 / 工具条 / 底栏：深一点的木面，压得住页面 */
+body[data-theme="skeuomorph"] .topbar,
+body[data-theme="skeuomorph"] .reader__toolbar,
+body[data-theme="skeuomorph"] .reader__footer {
+  background:
+    linear-gradient(180deg, var(--skeu-hi-soft), transparent 42%),
+    linear-gradient(135deg, var(--bg-2), var(--skeu-face-2));
+  border-color: var(--skeu-edge);
+  box-shadow:
+    0 4px 10px var(--skeu-lo),
+    0 -2px 6px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+/* --------------------------------------------------------------------------
+   2. 凹陷区：面板上压出来的井槽
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .empty,
+body[data-theme="skeuomorph"] .upload-drop {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  border: 1px dashed var(--skeu-edge);
+  box-shadow:
+    inset 2px 3px 6px var(--skeu-inset-lo),
+    inset -1px -1px 3px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .upload-drop {
+  border-width: 2px;
+}
+
+body[data-theme="skeuomorph"] .upload-drop:hover,
+body[data-theme="skeuomorph"] .upload-drop.is-over {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--skeu-well-2), var(--skeu-well));
+}
+
+/* 输入框：默认就是凹进去的 */
+body[data-theme="skeuomorph"] .field__input,
+body[data-theme="skeuomorph"] .field__textarea,
+body[data-theme="skeuomorph"] .login__input {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  border: 1px solid var(--skeu-edge);
+  color: var(--ink);
+  box-shadow:
+    inset 2px 2px 4px var(--skeu-inset-lo),
+    inset -1px -1px 3px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .field__input:focus,
+body[data-theme="skeuomorph"] .field__textarea:focus,
+body[data-theme="skeuomorph"] .login__input:focus {
+  box-shadow:
+    inset 2px 3px 6px var(--skeu-inset-lo),
+    inset -1px -1px 3px var(--skeu-inset-hi),
+    0 0 0 2px var(--skeu-edge);
+}
+
+/* --------------------------------------------------------------------------
+   3. 按钮：凸起的面，按下去变凹陷
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .btn {
+  background:
+    linear-gradient(180deg, var(--skeu-hi-soft), transparent 48%),
+    linear-gradient(180deg, var(--skeu-face), var(--skeu-face-2));
+  border: 1px solid var(--skeu-edge);
+  color: var(--ink);
+  text-shadow: 0 1px 0 var(--skeu-hi-soft);
+  box-shadow:
+    2px 3px 6px var(--skeu-lo),
+    -1px -1px 4px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .btn:active {
+  background:
+    linear-gradient(180deg, transparent 30%, var(--skeu-hi-soft)),
+    linear-gradient(180deg, var(--skeu-face-2), var(--skeu-face));
+  text-shadow: none;
+  box-shadow:
+    inset 2px 3px 6px var(--skeu-inset-lo),
+    inset -1px -1px 3px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .btn--primary {
+  background: var(--skeu-brass);
+  border-color: rgba(74, 55, 40, .45);
+  color: var(--on-accent);
+  text-shadow: 0 1px 0 rgba(255, 248, 220, .35);
+  box-shadow:
+    2px 3px 6px var(--skeu-lo),
+    -1px -1px 4px var(--skeu-hi),
+    inset 0 1px 0 rgba(255, 248, 220, .45);
+}
+
+body[data-theme="skeuomorph"] .btn--primary:active {
+  background: linear-gradient(180deg, #8A6510, #E0B457);
+  box-shadow:
+    inset 2px 3px 6px rgba(74, 55, 40, .55),
+    inset -1px -1px 3px rgba(255, 248, 220, .25);
+}
+
+body[data-theme="skeuomorph"] .btn--ghost {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  color: var(--ink-soft);
+  text-shadow: none;
+  box-shadow:
+    inset 1px 2px 4px var(--skeu-inset-lo),
+    inset -1px -1px 2px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .btn--ghost:hover {
+  color: var(--ink);
+}
+
+body[data-theme="skeuomorph"] .btn--ai {
+  background:
+    linear-gradient(180deg, var(--skeu-hi-soft), transparent 48%),
+    linear-gradient(180deg, var(--bub-ai), var(--skeu-face-2));
+  border-color: var(--skeu-edge);
+  color: var(--ink);
+}
+
+body[data-theme="skeuomorph"] .btn--danger {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  border-color: var(--danger);
+  box-shadow:
+    inset 1px 2px 4px var(--skeu-inset-lo),
+    inset -1px -1px 2px var(--skeu-inset-hi);
+}
+
+/* --------------------------------------------------------------------------
+   4. 旋钮：圆形 / 金属面
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .icon-btn,
+body[data-theme="skeuomorph"] .reader__back {
+  background:
+    radial-gradient(circle at 35% 28%, var(--skeu-hi-soft) 0%, transparent 58%),
+    linear-gradient(180deg, var(--skeu-face), var(--skeu-face-2));
+  border: 1px solid var(--skeu-edge);
+  color: var(--ink);
+  box-shadow:
+    2px 2px 4px var(--skeu-lo),
+    -1px -1px 3px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .icon-btn:hover {
+  background:
+    radial-gradient(circle at 35% 28%, var(--skeu-hi) 0%, transparent 58%),
+    linear-gradient(180deg, var(--skeu-face), var(--skeu-face-2));
+}
+
+body[data-theme="skeuomorph"] .icon-btn:active,
+body[data-theme="skeuomorph"] .reader__back:active {
+  background:
+    radial-gradient(circle at 50% 62%, var(--skeu-hi-soft) 0%, transparent 58%),
+    linear-gradient(180deg, var(--skeu-face-2), var(--skeu-face));
+  box-shadow:
+    inset 2px 3px 6px var(--skeu-inset-lo),
+    inset -1px -1px 3px var(--skeu-inset-hi);
+}
+
+/* 选中态自带一圈描边指环，别被旋钮阴影盖掉 */
+body[data-theme="skeuomorph"] .palette__dot:not(.palette__dot--active) {
+  border: 1px solid var(--skeu-edge);
+  box-shadow:
+    2px 2px 4px var(--skeu-lo),
+    -1px -1px 3px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+/* --------------------------------------------------------------------------
+   5. 凹槽轨道：进度条 / 分段控件 / 拨动开关
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .progress-bar {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  box-shadow:
+    inset 1px 2px 3px var(--skeu-inset-lo),
+    inset -1px -1px 2px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .progress-bar__fill {
+  background: var(--skeu-brass);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 220, .45),
+    0 1px 2px var(--skeu-lo);
+}
+
+body[data-theme="skeuomorph"] .seg {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  border-color: var(--skeu-edge);
+  box-shadow:
+    inset 1px 2px 4px var(--skeu-inset-lo),
+    inset -1px -1px 2px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .seg__item--active {
+  background:
+    linear-gradient(180deg, var(--skeu-hi-soft), transparent 48%),
+    linear-gradient(180deg, var(--skeu-face), var(--skeu-face-2));
+  color: var(--ink);
+  box-shadow:
+    2px 2px 4px var(--skeu-lo),
+    -1px -1px 3px var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .toggle {
+  background: linear-gradient(180deg, var(--skeu-well), var(--skeu-well-2));
+  border-color: var(--skeu-edge);
+  box-shadow:
+    inset 2px 2px 4px var(--skeu-inset-lo),
+    inset -1px -1px 2px var(--skeu-inset-hi);
+}
+
+body[data-theme="skeuomorph"] .toggle::after {
+  background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, var(--skeu-face) 52%, var(--skeu-face-2) 100%);
+  box-shadow:
+    1px 2px 3px var(--skeu-lo),
+    -1px -1px 2px var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .toggle--on {
+  background: var(--skeu-brass);
+  border-color: var(--skeu-edge);
+}
+
+/* --------------------------------------------------------------------------
+   6. 正文区：一张摊在木台上的纸
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .reader__content {
+  background:
+    linear-gradient(180deg, var(--skeu-paper-sheen), transparent 12%),
+    linear-gradient(135deg, var(--paper), var(--skeu-paper-2));
+  border: 1px solid var(--skeu-edge);
+  box-shadow:
+    6px 6px 14px var(--skeu-lo),
+    -3px -3px 8px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .reader__chapter-title {
+  text-shadow: 0 1px 0 var(--skeu-hi-soft);
+}
+
+/* 翻章箭头：刻在面板上的符号 */
+body[data-theme="skeuomorph"] .reader__tap-left::after,
+body[data-theme="skeuomorph"] .reader__tap-right::after {
+  text-shadow: 0 1px 0 var(--skeu-hi), 0 -1px 0 var(--skeu-lo);
+}
+
+/* --------------------------------------------------------------------------
+   7. 批注 / 气泡：小块凸起的实体
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .bubble {
+  border: 1px solid var(--skeu-edge);
+  box-shadow:
+    2px 2px 5px var(--skeu-lo),
+    -1px -1px 3px var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .bubble--mine {
+  background: linear-gradient(180deg, var(--bub-mine), var(--skeu-face-2));
+  border-bottom: 2px solid var(--hl-mine);
+}
+
+body[data-theme="skeuomorph"] .bubble--ai {
+  background: linear-gradient(180deg, var(--bub-ai), var(--skeu-face-2));
+  border-left: 3px solid var(--accent);
+}
+
+body[data-theme="skeuomorph"] .anno-item--replied {
+  border-left: 3px solid var(--accent);
+}
+
+body[data-theme="skeuomorph"] .pill {
+  background: linear-gradient(180deg, var(--skeu-face), var(--skeu-face-2));
+  border-color: var(--skeu-edge);
+  box-shadow:
+    1px 2px 3px var(--skeu-lo),
+    -1px -1px 2px var(--skeu-hi);
+}
+
+/* --------------------------------------------------------------------------
+   8. 书架首屏：木板 + 四角螺丝 + 底部铜条
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .shelf__hero {
+  background:
+    repeating-linear-gradient(96deg, rgba(160, 82, 45, .06) 0 2px, transparent 2px 9px),
+    linear-gradient(135deg, var(--skeu-face), var(--skeu-face-2));
+  box-shadow:
+    6px 6px 14px var(--skeu-lo),
+    -3px -3px 8px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .shelf__hero::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 7px 7px, var(--skeu-screw) 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 7px) 7px, var(--skeu-screw) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 7px calc(100% - 7px), var(--skeu-screw) 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), var(--skeu-screw) 0 2px, transparent 2.5px);
+}
+
+body[data-theme="skeuomorph"] .shelf__hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  background: var(--skeu-brass);
+  box-shadow: inset 0 1px 0 rgba(255, 248, 220, .45);
+}
+
+/* --------------------------------------------------------------------------
+   9. 零散零件：封面 / 选区工具条 / 提示条 / 目录当前项
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"] .book-card__cover {
+  background:
+    linear-gradient(135deg, var(--skeu-paper-2), var(--skeu-face-2));
+  border: 1px solid var(--skeu-edge);
+  box-shadow:
+    inset 0 1px 0 var(--skeu-hi),
+    inset 2px 0 5px var(--skeu-inset-lo);
+}
+
+body[data-theme="skeuomorph"] .sel-bar {
+  background: var(--skeu-brass);
+  border: 1px solid rgba(74, 55, 40, .5);
+  box-shadow:
+    3px 4px 8px var(--skeu-lo),
+    -1px -1px 3px var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .toast {
+  background:
+    linear-gradient(180deg, var(--skeu-hi-soft), transparent 40%),
+    linear-gradient(135deg, var(--skeu-face), var(--skeu-face-2));
+  border: 1px solid var(--skeu-edge);
+  color: var(--ink);
+  box-shadow:
+    4px 4px 10px var(--skeu-lo),
+    -2px -2px 6px var(--skeu-hi),
+    inset 0 1px 0 var(--skeu-hi);
+}
+
+body[data-theme="skeuomorph"] .toc__item--active {
+  background: var(--skeu-brass);
+  color: var(--on-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 220, .45),
+    1px 2px 4px var(--skeu-lo);
+}
+
+/* --------------------------------------------------------------------------
+   10. 夜间微调：白高光压成铜色，纸面换成深色羊皮
+   -------------------------------------------------------------------------- */
+body[data-theme="skeuomorph"][data-mode="night"] .reader__content {
+  background:
+    linear-gradient(180deg, var(--skeu-paper-sheen), transparent 12%),
+    linear-gradient(135deg, var(--paper), var(--skeu-paper-2));
+}
+
+body[data-theme="skeuomorph"][data-mode="night"] .shelf__hero {
+  background:
+    repeating-linear-gradient(96deg, rgba(0, 0, 0, .22) 0 2px, transparent 2px 9px),
+    linear-gradient(135deg, var(--skeu-face), var(--skeu-face-2));
+}
+
+body[data-theme="skeuomorph"][data-mode="night"] .toggle::after {
+  background: radial-gradient(circle at 35% 30%, #FFF6E2 0%, #E8D6B4 52%, #C9B48C 100%);
+}

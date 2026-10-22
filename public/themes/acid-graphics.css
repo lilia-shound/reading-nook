@@ -1,0 +1,751 @@
+/**
+ * 共读小屋 · 主题：酸性设计 (Acid Graphics)
+ *
+ * 参考：_reference/ui/acid-graphics-components.html（深色版，主参考）
+ *       _reference/ui/acid-graphics-components-light.html（浅色版）
+ *
+ * 这套皮肤的四条铁律：
+ *   1. 荧光高饱和 —— 绿 / 洋红 / 黄 / 青，饱和度拉满，不给中间色
+ *   2. 辉光 = 夜，偏移硬阴影 = 昼 —— 夜档面板浮在黑上发光，昼档用 3px 3px 0 纯黑错版影
+ *   3. 等宽字体优先 —— 终端 / 机器的美学，正文也走系统等宽栈
+ *   4. 黑底压场 —— 夜档近纯黑压底，面板半透明 + 辉光边，绝不灰蒙蒙
+ *
+ * 昼 / 夜两档不是同一套色板换亮度：昼是米白纸 + 撞色 + 硬影，夜是纯黑 + 荧光绿 + 辉光。
+ * --shadow / --shadow-sm 这两个变量就是两档的分水岭，其余组件规则昼夜共用。
+ * 字体全部走系统等宽栈，零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   酸性设计 / 白天
+   米白纸面 + 纯黑结构线 + 高饱和撞色 + 3px 3px 0 纯黑硬影
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"][data-mode="day"] {
+  --bg: #F2F0EB;
+  --bg-2: #FAFAF7;
+  --paper: #FFFFFF;
+  --ink: #1A1A1A;
+  --ink-soft: #666666;
+  --line: #1A1A1A;
+  --accent: #22C55E;
+  --on-accent: #0D0D0D;
+  --hl-mine: #D946EF;
+  --hl-ai: #06B6D4;
+  --bub-mine: #D946EF;
+  --bub-ai: #06B6D4;
+  --text-color: #1A1A1A;
+  --radius: 2px;
+  --radius-sm: 1px;
+  --shadow: 3px 3px 0 #1A1A1A;
+  --shadow-sm: 1px 1px 0 #1A1A1A;
+  --font-serif: "Share Tech Mono", "Cascadia Mono", "SF Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Cascadia Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #E11D48;
+  --deco:
+    repeating-linear-gradient(45deg, rgba(34, 197, 94, .05) 0 1px, transparent 1px 10px),
+    radial-gradient(circle at 1px 1px, rgba(26, 26, 26, .055) 1px, transparent 1.5px),
+    conic-gradient(from 140deg at 84% 12%, rgba(217, 70, 239, .075), transparent 32%),
+    radial-gradient(42% 30% at 14% 82%, rgba(6, 182, 212, .07), transparent 70%);
+  --deco-size: auto, 20px 20px, auto, auto;
+
+  /* 内部调色板：组件级撞色统一从这里取 */
+  --acid-bw: 2px;
+  --acid-green: #22C55E;
+  --acid-magenta: #D946EF;
+  --acid-yellow: #EAB308;
+  --acid-cyan: #06B6D4;
+  --acid-orange: #F97316;
+  --acid-ai-solid: #D946EF;
+}
+
+/* --------------------------------------------------------------------------
+   酸性设计 / 夜间
+   近纯黑压场 + 酸性绿正文 + 半透明面板 + 辉光边
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"][data-mode="night"] {
+  --bg: #0D0D0D;
+  --bg-2: rgba(10, 10, 10, .92);
+  --paper: rgba(13, 15, 13, .94);
+  --ink: #39FF14;
+  --ink-soft: #66FF66;
+  --line: rgba(57, 255, 20, .4);
+  --accent: #39FF14;
+  --on-accent: #0D0D0D;
+  --hl-mine: #FF00FF;
+  --hl-ai: #00FFFF;
+  --bub-mine: rgba(255, 0, 255, .13);
+  --bub-ai: rgba(0, 255, 255, .11);
+  --text-color: #39FF14;
+  --radius: 1px;
+  --radius-sm: 1px;
+  --shadow: 0 0 12px rgba(57, 255, 20, .45), 0 0 30px rgba(57, 255, 20, .18);
+  --shadow-sm: 0 0 8px rgba(57, 255, 20, .35);
+  --font-serif: "Share Tech Mono", "Cascadia Mono", "SF Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: "Cascadia Mono", Consolas, "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+  --danger: #FF4500;
+  --deco:
+    repeating-linear-gradient(0deg, rgba(57, 255, 20, .05) 0 1px, transparent 1px 3px),
+    radial-gradient(circle at 1px 1px, rgba(57, 255, 20, .07) 1px, transparent 1.5px),
+    conic-gradient(from 200deg at 78% 10%, rgba(255, 0, 255, .09), transparent 30%),
+    radial-gradient(40% 28% at 16% 80%, rgba(0, 255, 255, .07), transparent 70%);
+  --deco-size: auto 3px, 20px 20px, auto, auto;
+
+  /* 内部调色板：组件级撞色统一从这里取 */
+  --acid-bw: 1px;
+  --acid-green: #39FF14;
+  --acid-magenta: #FF00FF;
+  --acid-yellow: #FFFF00;
+  --acid-cyan: #00FFFF;
+  --acid-orange: #FF4500;
+  --acid-ai-solid: #00FFFF;
+}
+
+/* --------------------------------------------------------------------------
+   面板 / 卡片：半透明底 + 辉光边，夜档面板浮在黑上
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .login__card,
+body[data-theme="acid-graphics"] .book-card,
+body[data-theme="acid-graphics"] .shelf__hero,
+body[data-theme="acid-graphics"] .settings__group,
+body[data-theme="acid-graphics"] .stat,
+body[data-theme="acid-graphics"] .note-card,
+body[data-theme="acid-graphics"] .log-row,
+body[data-theme="acid-graphics"] .modal__box,
+body[data-theme="acid-graphics"] .anno-item,
+body[data-theme="acid-graphics"] .theme-card {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow);
+}
+
+/* 虚线框：空状态 / 上传区 */
+body[data-theme="acid-graphics"] .empty,
+body[data-theme="acid-graphics"] .upload-drop {
+  border: var(--acid-bw) dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 阅读页：一块浮在黑上的发光纸面 */
+body[data-theme="acid-graphics"] .reader__content {
+  background: var(--paper);
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 30px 30px 34px;
+}
+
+body[data-theme="acid-graphics"] .reader__body {
+  background-color: var(--bg-2);
+}
+
+/* --------------------------------------------------------------------------
+   按钮：终端按键。1px 锐角 + 状态色，hover 抬升、active 下沉
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .btn,
+body[data-theme="acid-graphics"] .icon-btn,
+body[data-theme="acid-graphics"] .reader__back,
+body[data-theme="acid-graphics"] .toc__close,
+body[data-theme="acid-graphics"] .modal__close,
+body[data-theme="acid-graphics"] .sel-bar {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .08em;
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="acid-graphics"] .btn:hover,
+body[data-theme="acid-graphics"] .icon-btn:hover,
+body[data-theme="acid-graphics"] .reader__back:hover,
+body[data-theme="acid-graphics"] .toc__close:hover,
+body[data-theme="acid-graphics"] .modal__close:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body[data-theme="acid-graphics"] .btn:active,
+body[data-theme="acid-graphics"] .icon-btn:active,
+body[data-theme="acid-graphics"] .reader__back:active,
+body[data-theme="acid-graphics"] .toc__close:active,
+body[data-theme="acid-graphics"] .modal__close:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+body[data-theme="acid-graphics"] .btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+body[data-theme="acid-graphics"] .btn--ai {
+  background: var(--acid-ai-solid);
+  border-color: var(--acid-ai-solid);
+  color: #0D0D0D;
+}
+
+body[data-theme="acid-graphics"] .btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+body[data-theme="acid-graphics"] .btn--ghost:hover {
+  color: var(--ink);
+  background: var(--bg-2);
+}
+
+body[data-theme="acid-graphics"] .btn--danger {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: none;
+}
+
+body[data-theme="acid-graphics"] .btn--sm {
+  border-radius: var(--radius-sm);
+  letter-spacing: .06em;
+}
+
+/* 顶栏 / 阅读工具条 / 底栏：一条亮边 + 顶栏底部的四色渐变条 */
+body[data-theme="acid-graphics"] .topbar,
+body[data-theme="acid-graphics"] .reader__toolbar {
+  background-color: var(--bg-2);
+  border-bottom: var(--acid-bw) solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="acid-graphics"] .topbar {
+  background-image: linear-gradient(90deg,
+    var(--acid-green) 0%,
+    var(--acid-yellow) 25%,
+    var(--acid-magenta) 50%,
+    var(--acid-cyan) 75%,
+    var(--acid-green) 100%);
+  background-size: 100% 3px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+
+body[data-theme="acid-graphics"] .reader__footer {
+  background-color: var(--bg-2);
+  border-top: var(--acid-bw) solid var(--line);
+  box-shadow: none;
+}
+
+/* 侧边抽屉：发光边 + 面板浮起 */
+body[data-theme="acid-graphics"] .toc {
+  background: var(--bg-2);
+  border-right: var(--acid-bw) solid var(--line);
+  box-shadow: var(--shadow);
+  padding-top: env(safe-area-inset-top);
+}
+
+body[data-theme="acid-graphics"] .anno-panel {
+  background: var(--bg-2);
+  border-left: var(--acid-bw) solid var(--line);
+  box-shadow: var(--shadow);
+  padding-top: env(safe-area-inset-top);
+}
+
+/* 弹窗遮罩：压一层黑，不做玻璃模糊 */
+body[data-theme="acid-graphics"] .modal__mask {
+  background: rgba(13, 13, 13, .62);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   排版：等宽 + 拉开字距 + 全大写，像终端打印出来的
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .topbar__title,
+body[data-theme="acid-graphics"] .reader__title,
+body[data-theme="acid-graphics"] .book-card__title,
+body[data-theme="acid-graphics"] .note-card__ch,
+body[data-theme="acid-graphics"] .modal__title,
+body[data-theme="acid-graphics"] .anno-panel__head,
+body[data-theme="acid-graphics"] .settings__title,
+body[data-theme="acid-graphics"] .login__title,
+body[data-theme="acid-graphics"] .toc__head {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+body[data-theme="acid-graphics"] .shelf__title {
+  font-family: var(--font-sans);
+  font-size: clamp(1.9rem, 5.6vw, 3rem);
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1.12;
+  color: var(--ink);
+}
+
+body[data-theme="acid-graphics"] .reader__chapter-title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .06em;
+  border-bottom: 0;
+  padding-bottom: .45em;
+  /* 四色渐变底线，替掉普通分隔线 */
+  background-image: linear-gradient(90deg,
+    var(--acid-green) 0%,
+    var(--acid-yellow) 25%,
+    var(--acid-magenta) 50%,
+    var(--acid-cyan) 75%,
+    var(--acid-green) 100%);
+  background-size: 100% 3px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+
+body[data-theme="acid-graphics"] .stat__num {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--accent);
+}
+
+body[data-theme="acid-graphics"] .shelf__subtitle,
+body[data-theme="acid-graphics"] .stat__label,
+body[data-theme="acid-graphics"] .book-card__meta,
+body[data-theme="acid-graphics"] .log-row__meta,
+body[data-theme="acid-graphics"] .bubble__ts {
+  letter-spacing: .04em;
+}
+
+/* --------------------------------------------------------------------------
+   划线：粗下划线 + 撞色，昼档不用荧光带（会糊掉黑字），夜档才上荧光带
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .hl--mine,
+body[data-theme="acid-graphics"] .hl--ai,
+body[data-theme="acid-graphics"] .para--hl-mine,
+body[data-theme="acid-graphics"] .para--hl-ai {
+  text-decoration-thickness: 3px;
+  text-underline-offset: 5px;
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip-ink: none;
+}
+
+body[data-theme="acid-graphics"] .hl--mine,
+body[data-theme="acid-graphics"] .para--hl-mine {
+  text-decoration-color: var(--hl-mine);
+}
+
+body[data-theme="acid-graphics"] .hl--ai,
+body[data-theme="acid-graphics"] .para--hl-ai {
+  text-decoration-color: var(--hl-ai);
+}
+
+/* --------------------------------------------------------------------------
+   气泡：洋红 = 我的，青 = 他的。靠边框 + 底色双重区分，不靠颜色单打独斗
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .bubble {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="acid-graphics"] .bubble--mine {
+  background: var(--bub-mine);
+  color: var(--ink);
+  border-bottom: 3px solid var(--hl-mine);
+}
+
+body[data-theme="acid-graphics"] .bubble--ai {
+  background: var(--bub-ai);
+  color: var(--ink);
+  border-left: 3px solid var(--hl-ai);
+}
+
+/* --------------------------------------------------------------------------
+   零碎零件
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  letter-spacing: .06em;
+}
+
+body[data-theme="acid-graphics"] .toast {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: var(--shadow);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+body[data-theme="acid-graphics"] .seg {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="acid-graphics"] .seg__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+body[data-theme="acid-graphics"] .progress-bar {
+  height: 6px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+}
+
+body[data-theme="acid-graphics"] .progress-bar__fill {
+  border-radius: 0;
+  background: linear-gradient(90deg, var(--acid-green), var(--acid-cyan));
+}
+
+body[data-theme="acid-graphics"] .toggle {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+body[data-theme="acid-graphics"] .toggle::after {
+  border-radius: 50%;
+  background: var(--ink-soft);
+}
+
+body[data-theme="acid-graphics"] .toggle--on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+body[data-theme="acid-graphics"] .toggle--on::after {
+  background: #0D0D0D;
+}
+
+body[data-theme="acid-graphics"] .field__input,
+body[data-theme="acid-graphics"] .field__textarea,
+body[data-theme="acid-graphics"] .login__input {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+body[data-theme="acid-graphics"] .field__input:focus,
+body[data-theme="acid-graphics"] .field__textarea:focus,
+body[data-theme="acid-graphics"] .login__input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+body[data-theme="acid-graphics"] .theme-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="acid-graphics"] .theme-card--active {
+  border-color: var(--accent);
+  box-shadow: var(--shadow), 0 0 0 2px var(--accent);
+}
+
+body[data-theme="acid-graphics"] .swatch--active,
+body[data-theme="acid-graphics"] .palette__dot--active {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px var(--bg-2), 0 0 0 5px var(--accent);
+}
+
+body[data-theme="acid-graphics"] .toc__item {
+  font-family: var(--font-sans);
+  letter-spacing: .04em;
+}
+
+body[data-theme="acid-graphics"] .toc__item--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  box-shadow: inset 4px 0 0 var(--hl-ai);
+}
+
+body[data-theme="acid-graphics"] .modal__head,
+body[data-theme="acid-graphics"] .anno-panel__head,
+body[data-theme="acid-graphics"] .toc__head {
+  border-bottom: var(--acid-bw) solid var(--line);
+}
+
+body[data-theme="acid-graphics"] .modal__foot {
+  border-top: var(--acid-bw) solid var(--line);
+}
+
+body[data-theme="acid-graphics"] .anno-item--replied {
+  border-left: 4px solid var(--accent);
+}
+
+body[data-theme="acid-graphics"] .anno-item__anchor {
+  border-left: 4px solid var(--hl-mine);
+  font-family: var(--font-sans);
+}
+
+body[data-theme="acid-graphics"] .reader__tap-left,
+body[data-theme="acid-graphics"] .reader__tap-right {
+  background: transparent;
+  color: var(--ink);
+  opacity: .22;
+}
+
+body[data-theme="acid-graphics"] .reader__tap-left:hover,
+body[data-theme="acid-graphics"] .reader__tap-right:hover {
+  opacity: .7;
+}
+
+body[data-theme="acid-graphics"] ::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+body[data-theme="acid-graphics"] :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------------------------------
+   几何装饰：书架头图的洋红三角 + 青色方块，书封右上角的错版三角
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"] .shelf__hero {
+  padding: 26px 24px 22px;
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="acid-graphics"] .shelf__hero::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 54px solid var(--acid-magenta);
+  border-left: 54px solid transparent;
+}
+
+body[data-theme="acid-graphics"] .shelf__hero::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  width: 24px;
+  height: 24px;
+  background: var(--acid-cyan);
+}
+
+body[data-theme="acid-graphics"] .shelf__title,
+body[data-theme="acid-graphics"] .shelf__subtitle,
+body[data-theme="acid-graphics"] .shelf__tools {
+  position: relative;
+  z-index: 2;
+}
+
+body[data-theme="acid-graphics"] .book-card__cover {
+  border: var(--acid-bw) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  box-shadow: none;
+  padding: 16px;
+}
+
+body[data-theme="acid-graphics"] .book-card__cover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 24px solid var(--acid-magenta);
+  border-left: 24px solid transparent;
+}
+
+body[data-theme="acid-graphics"] .book-card__cover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  background: var(--acid-cyan);
+}
+
+body[data-theme="acid-graphics"] .book-card:hover {
+  transform: translate(-2px, -2px);
+}
+
+/* --------------------------------------------------------------------------
+   夜间专属：辉光。标题发光、危险键泛橙光、进度条拖尾、焦点圈发亮
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"][data-mode="night"] .topbar__title,
+body[data-theme="acid-graphics"][data-mode="night"] .shelf__title,
+body[data-theme="acid-graphics"][data-mode="night"] .reader__chapter-title,
+body[data-theme="acid-graphics"][data-mode="night"] .modal__title,
+body[data-theme="acid-graphics"][data-mode="night"] .login__title,
+body[data-theme="acid-graphics"][data-mode="night"] .book-card__title {
+  text-shadow: 0 0 8px rgba(57, 255, 20, .55), 0 0 22px rgba(57, 255, 20, .25);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .stat__num {
+  text-shadow: 0 0 10px rgba(57, 255, 20, .6);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .btn--danger {
+  box-shadow: 0 0 10px rgba(255, 69, 0, .28);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .progress-bar__fill {
+  box-shadow: 0 0 10px rgba(57, 255, 20, .55);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .field__input:focus,
+body[data-theme="acid-graphics"][data-mode="night"] .field__textarea:focus,
+body[data-theme="acid-graphics"][data-mode="night"] .login__input:focus {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 12px rgba(57, 255, 20, .45);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .reader__content {
+  box-shadow: var(--shadow), inset 0 0 40px rgba(57, 255, 20, .035);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .shelf__hero::before,
+body[data-theme="acid-graphics"][data-mode="night"] .book-card__cover::before {
+  filter: drop-shadow(0 0 10px rgba(255, 0, 255, .55));
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .shelf__hero::after,
+body[data-theme="acid-graphics"][data-mode="night"] .book-card__cover::after {
+  filter: drop-shadow(0 0 8px rgba(0, 255, 255, .5));
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--mine {
+  box-shadow: 0 0 12px rgba(255, 0, 255, .22);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--ai {
+  box-shadow: 0 0 12px rgba(0, 255, 255, .22);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--mine .bubble__name,
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--mine .bubble__ts,
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--ai .bubble__name,
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--ai .bubble__ts {
+  color: var(--ink-soft);
+}
+
+/* 夜档划线：荧光带压在字下面，只压住字脚，不挡字面 */
+body[data-theme="acid-graphics"][data-mode="night"] .hl--mine,
+body[data-theme="acid-graphics"][data-mode="night"] .para--hl-mine {
+  background-image: linear-gradient(transparent 64%, rgba(255, 0, 255, .38) 64%, rgba(255, 0, 255, .38) 92%, transparent 92%);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .hl--ai,
+body[data-theme="acid-graphics"][data-mode="night"] .para--hl-ai {
+  background-image: linear-gradient(transparent 64%, rgba(0, 255, 255, .34) 64%, rgba(0, 255, 255, .34) 92%, transparent 92%);
+}
+
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--mine .bubble__name,
+body[data-theme="acid-graphics"][data-mode="night"] .bubble--ai .bubble__name {
+  text-shadow: 0 0 6px rgba(102, 255, 102, .4);
+}
+
+/* --------------------------------------------------------------------------
+   白天专属：偏移硬影。错版感全靠这层
+   -------------------------------------------------------------------------- */
+body[data-theme="acid-graphics"][data-mode="day"] .btn:hover,
+body[data-theme="acid-graphics"][data-mode="day"] .icon-btn:hover,
+body[data-theme="acid-graphics"][data-mode="day"] .reader__back:hover,
+body[data-theme="acid-graphics"][data-mode="day"] .toc__close:hover,
+body[data-theme="acid-graphics"][data-mode="day"] .modal__close:hover {
+  box-shadow: 4px 4px 0 #1A1A1A;
+}
+
+body[data-theme="acid-graphics"][data-mode="day"] .shelf__title {
+  text-shadow: 3px 3px 0 var(--acid-magenta);
+}
+
+body[data-theme="acid-graphics"][data-mode="day"] .reader__content {
+  box-shadow: 5px 5px 0 #1A1A1A;
+}
+
+body[data-theme="acid-graphics"][data-mode="day"] .book-card:hover,
+body[data-theme="acid-graphics"][data-mode="day"] .theme-card:hover {
+  box-shadow: 4px 4px 0 #1A1A1A;
+}
+
+/* 昼档气泡底色是高饱和撞色，次要文字必须压深才读得清 */
+body[data-theme="acid-graphics"][data-mode="day"] .bubble--mine .bubble__name,
+body[data-theme="acid-graphics"][data-mode="day"] .bubble--mine .bubble__ts,
+body[data-theme="acid-graphics"][data-mode="day"] .bubble--ai .bubble__name,
+body[data-theme="acid-graphics"][data-mode="day"] .bubble--ai .bubble__ts {
+  color: rgba(13, 13, 13, .72);
+}
+
+/* 昼档划线只留粗下划线，荧光带会把黑字糊掉 */
+body[data-theme="acid-graphics"][data-mode="day"] .hl--mine,
+body[data-theme="acid-graphics"][data-mode="day"] .para--hl-mine,
+body[data-theme="acid-graphics"][data-mode="day"] .hl--ai,
+body[data-theme="acid-graphics"][data-mode="day"] .para--hl-ai {
+  background-image: none;
+}
+
+body[data-theme="acid-graphics"][data-mode="day"] .modal__mask {
+  background: rgba(26, 26, 26, .42);
+}
+
+/* --------------------------------------------------------------------------
+   窄屏：批注面板改成从下往上顶，边框跟着换向
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body[data-theme="acid-graphics"] .anno-panel {
+    border-left: 0;
+    border-top: var(--acid-bw) solid var(--line);
+  }
+
+  body[data-theme="acid-graphics"] .shelf__hero {
+    padding: 22px 18px;
+  }
+
+  body[data-theme="acid-graphics"] .shelf__hero::before {
+    border-top-width: 40px;
+    border-left-width: 40px;
+  }
+
+  body[data-theme="acid-graphics"] .reader__content {
+    padding: 24px 20px 28px;
+  }
+}
+
+/* 更窄的屏幕：两侧要让开点读热区 */
+@media (max-width: 560px) {
+  body[data-theme="acid-graphics"] .reader__content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}

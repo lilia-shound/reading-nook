@@ -1,0 +1,673 @@
+/**
+ * 共读小屋 · 主题：材质设计 (Material Design)
+ *
+ * 参考：_reference/ui/material-design-components.html
+ *
+ * Material 介于扁平与拟物之间：它不靠描边划界，而靠"层级（elevation）"表达空间；
+ * 阴影分档、12-16px 圆角、一套字族、克制的紫色主色，缺一不可。
+ * 这套皮肤的四条铁律：
+ *   1. 阴影分三层 —— 卡片 6dp / 按钮 3dp / 输入框 1dp，阴影本身就是层级语言
+ *   2. 圆角 12-16px —— 柔和、连续，和包豪斯的直角形成对比
+ *   3. 紫色主色 + 大面积白面 —— 内容是主角，颜色克制（芯片与开关保留 Material 的胶囊形）
+ *   4. 上下两档字重 —— 500（正文）/ 600（标题与按钮），不做花哨
+ *
+ * 夜间档不是把白天反过来，而是 Material 深色模式：底 #121212 / 面 #1E1E1F /
+ * 正文 #E6E1E5，主色紫提亮到 #D0BCFF，阴影在深底上改用更亮的黑 rgba(0,0,0,.6)。
+ * 字体全部走系统栈（Roboto → Noto Sans SC → 系统中文字），零外部资源，离线可用。
+ */
+
+/* --------------------------------------------------------------------------
+   材质设计 / 白天
+   主色 #6750A4，底 #FAFAFA，面 #FFFFFF，正文 #1D1B20
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"][data-mode="day"] {
+  /* —— 面 —— */
+  --bg: #FAFAFA;
+  --bg-2: #FFFFFF;
+  --paper: #FFFFFF;
+  --ink: #1D1B20;
+  --ink-soft: #787579;
+  --line: #E6E1E5;
+
+  /* —— 主色 —— */
+  --accent: #6750A4;
+  --on-accent: #FFFFFF;
+
+  /* —— 划线与批注：紫是我的，褐粉是他的 —— */
+  --hl-mine: #6750A4;
+  --hl-ai: #7D5260;
+  --bub-mine: #EADDFF;
+  --bub-ai: #FFD8E4;
+  --text-color: #1D1B20;
+
+  /* —— 圆角 —— */
+  --radius: 16px;
+  --radius-sm: 12px;
+
+  /* —— 阴影三档：输入框 1dp / 按钮 3dp / 卡片 6dp —— */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .08), 0 1px 3px rgba(0, 0, 0, .12);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, .08), 0 3px 6px rgba(0, 0, 0, .12);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 6px 12px rgba(0, 0, 0, .14);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, .08), 0 12px 24px rgba(0, 0, 0, .16);
+
+  /* —— Material 只用一套字族，正文与界面同源 —— */
+  --font-serif: Roboto, "Roboto Flex", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+  --font-sans: Roboto, "Roboto Flex", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+
+  --danger: #B3261E;
+
+  /* —— Material 色阶辅助（只在本皮肤内部用）—— */
+  --md-container: #EADDFF;
+  --md-on-container: #4F378B;
+  --md-surface-2: #F3EDF7;
+  --md-surface-3: #ECE6F0;
+  --md-outline: #79747E;
+  --md-hover: rgba(103, 80, 164, .08);
+  --bubble-meta: rgba(29, 27, 32, .68);
+
+  /* —— 装饰：极淡的几何色块（圆 / 圆角方 / 三角）+ 一层柔光 —— */
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Ccircle cx='46' cy='42' r='28' fill='%236750A4' fill-opacity='.055'/%3E%3Crect x='142' y='18' width='70' height='70' rx='18' fill='%23D0BCFF' fill-opacity='.20'/%3E%3Crect x='16' y='150' width='70' height='70' rx='18' fill='%23EFB8C8' fill-opacity='.16'/%3E%3Cpath d='M156 146h70l-35 60z' fill='%237D5260' fill-opacity='.08'/%3E%3Crect x='104' y='110' width='34' height='34' rx='10' fill='%236750A4' fill-opacity='.07'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 50%, rgba(103, 80, 164, .045) 0 40%, transparent 70%);
+  --deco-size: 240px 240px, 300px 300px;
+}
+
+/* --------------------------------------------------------------------------
+   材质设计 / 夜间
+   Material 深色模式：底 #121212、面 #1E1E1F、正文 #E6E1E5，主色紫提亮到 #D0BCFF
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"][data-mode="night"] {
+  /* —— 面 —— */
+  --bg: #121212;
+  --bg-2: #1E1E1F;
+  --paper: #1E1E1F;
+  --ink: #E6E1E5;
+  --ink-soft: #938F99;
+  --line: #49454F;
+
+  /* —— 主色：深色模式下主色要提亮，否则在深底上认不出 —— */
+  --accent: #D0BCFF;
+  --on-accent: #381E72;
+
+  /* —— 划线与批注：亮紫 / 亮粉，深底上依然看得见 —— */
+  --hl-mine: #D0BCFF;
+  --hl-ai: #EFB8C8;
+  --bub-mine: #4F378B;
+  --bub-ai: #633B48;
+  --text-color: #E6E1E5;
+
+  /* —— 圆角 —— */
+  --radius: 16px;
+  --radius-sm: 12px;
+
+  /* —— 阴影三档：深底上用更亮的黑，不是把阴影变浅 —— */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .6), 0 1px 3px rgba(0, 0, 0, .6);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, .6), 0 3px 6px rgba(0, 0, 0, .6);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .6), 0 6px 12px rgba(0, 0, 0, .6);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, .6), 0 12px 24px rgba(0, 0, 0, .6);
+
+  /* —— Material 只用一套字族，正文与界面同源 —— */
+  --font-serif: Roboto, "Roboto Flex", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+  --font-sans: Roboto, "Roboto Flex", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+
+  --danger: #F2B8B5;
+
+  /* —— Material 色阶辅助（只在本皮肤内部用）—— */
+  --md-container: #4F378B;
+  --md-on-container: #EADDFF;
+  --md-surface-2: #2B2930;
+  --md-surface-3: #36343B;
+  --md-outline: #938F99;
+  --md-hover: rgba(208, 188, 255, .10);
+  --bubble-meta: rgba(230, 225, 229, .78);
+
+  /* —— 装饰：同样的几何形，换成深色模式下的浅色调 —— */
+  --deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Ccircle cx='46' cy='42' r='28' fill='%23D0BCFF' fill-opacity='.05'/%3E%3Crect x='142' y='18' width='70' height='70' rx='18' fill='%23D0BCFF' fill-opacity='.07'/%3E%3Crect x='16' y='150' width='70' height='70' rx='18' fill='%23EFB8C8' fill-opacity='.06'/%3E%3Cpath d='M156 146h70l-35 60z' fill='%23EFB8C8' fill-opacity='.05'/%3E%3Crect x='104' y='110' width='34' height='34' rx='10' fill='%23D0BCFF' fill-opacity='.08'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 50% 50%, rgba(208, 188, 255, .05) 0 40%, transparent 70%);
+  --deco-size: 240px 240px, 300px 300px;
+}
+
+/* --------------------------------------------------------------------------
+   面：卡片 / 面板 —— 6dp 抬升，不要描边
+   Material 不用边框划界，靠阴影分层
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .login__card,
+body[data-theme="material-design"] .shelf__hero,
+body[data-theme="material-design"] .book-card,
+body[data-theme="material-design"] .settings__group,
+body[data-theme="material-design"] .stat,
+body[data-theme="material-design"] .note-card,
+body[data-theme="material-design"] .modal__box,
+body[data-theme="material-design"] .anno-item {
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow);
+}
+
+/* 悬停 = 再抬一档（8dp/12dp 那一层），Material 的"浮起来"手感 */
+body[data-theme="material-design"] .book-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+body[data-theme="material-design"] .book-card__cover {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--md-surface-2);
+  color: var(--md-on-container);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+/* 书架头图：一层很淡的紫色调 + 标题下方的紫色短杠（参考稿的 card-divider） */
+body[data-theme="material-design"] .shelf__hero {
+  padding: 26px 24px;
+  background: linear-gradient(135deg, rgba(103, 80, 164, .07), rgba(103, 80, 164, 0) 62%), var(--bg-2);
+}
+
+body[data-theme="material-design"][data-mode="night"] .shelf__hero {
+  background: linear-gradient(135deg, rgba(208, 188, 255, .08), rgba(208, 188, 255, 0) 62%), var(--bg-2);
+}
+
+body[data-theme="material-design"] .shelf__title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+body[data-theme="material-design"] .shelf__title::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   按钮 —— 3dp 抬升
+   Material 的状态层（state layer）用 currentColor 叠 8%，不用另配颜色
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .btn {
+  position: relative;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+
+body[data-theme="material-design"] .btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+
+body[data-theme="material-design"] .btn:hover::before { opacity: .08; }
+
+body[data-theme="material-design"] .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="material-design"] .btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-md);
+}
+
+body[data-theme="material-design"] .btn--primary:hover {
+  background: var(--accent);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="material-design"] .btn--ghost {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--accent);
+  padding: 0 14px;
+}
+
+body[data-theme="material-design"] .btn--ghost:hover { background: transparent; }
+
+body[data-theme="material-design"] .btn--ai {
+  background: var(--bub-ai);
+  border: 0;
+  color: var(--ink);
+  box-shadow: var(--shadow-md);
+}
+
+body[data-theme="material-design"] .btn--danger {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--danger);
+}
+
+body[data-theme="material-design"] .btn--sm {
+  border-radius: var(--radius-sm);
+}
+
+/* 图标按钮：Material 的 icon button 是圆的、无抬升、悬停才浮出一层色 */
+body[data-theme="material-design"] .icon-btn {
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+body[data-theme="material-design"] .icon-btn:hover {
+  background: var(--md-hover);
+  color: var(--ink);
+}
+
+body[data-theme="material-design"] .icon-btn--on {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+body[data-theme="material-design"] .reader__back {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 500;
+  padding: 0 12px;
+}
+
+body[data-theme="material-design"] .reader__back:hover { background: var(--md-hover); }
+
+body[data-theme="material-design"] .toc__close,
+body[data-theme="material-design"] .modal__close {
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+body[data-theme="material-design"] .toc__close:hover,
+body[data-theme="material-design"] .modal__close:hover {
+  background: var(--md-hover);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   输入框 —— 1dp 抬升 + 底线强调
+   Material 的 filled text field：底色是 surfaceContainerHighest，底线 2px
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .field__input,
+body[data-theme="material-design"] .field__textarea,
+body[data-theme="material-design"] .login__input {
+  border: 1px solid transparent;
+  border-bottom: 2px solid var(--md-outline);
+  border-radius: var(--radius-sm);
+  background: var(--md-surface-3);
+  color: var(--ink);
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .field__input:focus,
+body[data-theme="material-design"] .field__textarea:focus,
+body[data-theme="material-design"] .login__input:focus {
+  border-bottom-color: var(--accent);
+  background: var(--md-surface-2);
+}
+
+body[data-theme="material-design"] .field__input::placeholder,
+body[data-theme="material-design"] .field__textarea::placeholder,
+body[data-theme="material-design"] .login__input::placeholder {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   顶栏 / 工具条 / 底栏 —— 1dp 抬升，没有描边
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .topbar,
+body[data-theme="material-design"] .reader__toolbar {
+  background: var(--bg-2);
+  border-bottom: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .reader__footer {
+  background: var(--bg-2);
+  border-top: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .topbar__title,
+body[data-theme="material-design"] .reader__title,
+body[data-theme="material-design"] .book-card__title,
+body[data-theme="material-design"] .note-card__ch,
+body[data-theme="material-design"] .modal__title,
+body[data-theme="material-design"] .anno-panel__head,
+body[data-theme="material-design"] .settings__title,
+body[data-theme="material-design"] .login__title,
+body[data-theme="material-design"] .reader__chapter-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+body[data-theme="material-design"] .reader__chapter-title {
+  border-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 1em;
+}
+
+/* --------------------------------------------------------------------------
+   阅读器：一张抬起来的白纸压在浅灰底上
+   正文行高字号交给 app.css 的 --reader-fs / --reader-lh，这里不碰
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .reader__content {
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  padding: 32px 30px 36px;
+}
+
+/* 深色模式下抬高的面要加一点主色薄雾（Material 的 surface tint） */
+body[data-theme="material-design"][data-mode="night"] .reader__content {
+  background: linear-gradient(rgba(208, 188, 255, .04), rgba(208, 188, 255, .04)), var(--paper);
+}
+
+body[data-theme="material-design"] .reader__tap-left { background: linear-gradient(90deg, var(--bg), transparent); }
+body[data-theme="material-design"] .reader__tap-right { background: linear-gradient(270deg, var(--bg), transparent); }
+
+/* --------------------------------------------------------------------------
+   划线：半透明荧光带 + 实心下划线
+   荧光带用主色 18% 的半透明层，文字压在上面依然清楚；
+   下划线用 --hl-* 本色，白天是紫/褐、夜间是亮紫/亮粉，两种底色下都看得见
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .hl--mine,
+body[data-theme="material-design"] .hl--ai,
+body[data-theme="material-design"] .para--hl-mine,
+body[data-theme="material-design"] .para--hl-ai {
+  background-repeat: no-repeat;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip-ink: none;
+}
+
+body[data-theme="material-design"] .hl--mine,
+body[data-theme="material-design"] .para--hl-mine {
+  background-image: linear-gradient(transparent 58%, rgba(103, 80, 164, .18) 58%, rgba(103, 80, 164, .18) 92%, transparent 92%);
+  background-image: linear-gradient(transparent 58%, color-mix(in srgb, var(--hl-mine) 18%, transparent) 58%, color-mix(in srgb, var(--hl-mine) 18%, transparent) 92%, transparent 92%);
+  text-decoration-color: var(--hl-mine);
+}
+
+body[data-theme="material-design"] .hl--ai,
+body[data-theme="material-design"] .para--hl-ai {
+  background-image: linear-gradient(transparent 58%, rgba(125, 82, 96, .18) 58%, rgba(125, 82, 96, .18) 92%, transparent 92%);
+  background-image: linear-gradient(transparent 58%, color-mix(in srgb, var(--hl-ai) 18%, transparent) 58%, color-mix(in srgb, var(--hl-ai) 18%, transparent) 92%, transparent 92%);
+  text-decoration-color: var(--hl-ai);
+}
+
+/* --------------------------------------------------------------------------
+   气泡与批注：色块 + 形状区分，双保险
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .bubble {
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+
+body[data-theme="material-design"] .bubble--mine {
+  background: var(--bub-mine);
+  border-radius: var(--radius) var(--radius) 4px var(--radius);
+  color: var(--ink);
+}
+
+body[data-theme="material-design"] .bubble--ai {
+  background: var(--bub-ai);
+  border-left-color: var(--hl-ai);
+  border-radius: var(--radius) var(--radius) var(--radius) 4px;
+  color: var(--ink);
+}
+
+body[data-theme="material-design"] .bubble__name,
+body[data-theme="material-design"] .bubble__ts {
+  color: var(--bubble-meta);
+}
+
+body[data-theme="material-design"] .anno-item {
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .anno-item--replied {
+  border-left: 0;
+  box-shadow: inset 3px 0 0 0 var(--accent), var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .anno-item__anchor {
+  border-left: 3px solid var(--hl-mine);
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   目录 / 批注面板 / 弹窗 —— 抬起来的面，不用描边
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .toc {
+  background: var(--bg-2);
+  border-right: 0;
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="material-design"] .anno-panel {
+  background: var(--bg-2);
+  border-left: 0;
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="material-design"] .toc__item {
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+body[data-theme="material-design"] .toc__item--active {
+  background: var(--md-container);
+  color: var(--md-on-container);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 0 var(--accent);
+}
+
+/* 弹窗遮罩：Material 的 scrim 是纯黑一层，不做模糊 */
+body[data-theme="material-design"] .modal__mask {
+  background: rgba(0, 0, 0, .32);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body[data-theme="material-design"][data-mode="night"] .modal__mask {
+  background: rgba(0, 0, 0, .62);
+}
+
+/* 选区工具条：Material 的 menu */
+body[data-theme="material-design"] .sel-bar {
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="material-design"] .sel-bar__btn {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+body[data-theme="material-design"] .sel-bar__btn:active { background: var(--md-hover); }
+
+/* --------------------------------------------------------------------------
+   零件：开关 / 进度条 / 分段控件 / 芯片
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .toggle {
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--md-surface-3);
+}
+
+body[data-theme="material-design"] .toggle::after {
+  width: 24px;
+  height: 24px;
+  top: 4px;
+  left: 4px;
+  background: var(--md-outline);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .toggle--on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+body[data-theme="material-design"] .toggle--on::after {
+  transform: translateX(20px);
+  background: #FFFFFF;
+}
+
+body[data-theme="material-design"][data-mode="night"] .toggle--on::after { background: #381E72; }
+
+body[data-theme="material-design"] .progress-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--md-surface-3);
+}
+
+body[data-theme="material-design"] .progress-bar__fill {
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+body[data-theme="material-design"] .seg {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--md-surface-2);
+  box-shadow: none;
+}
+
+body[data-theme="material-design"] .seg__item {
+  font-weight: 500;
+}
+
+body[data-theme="material-design"] .seg__item--active {
+  background: var(--md-container);
+  color: var(--md-on-container);
+  font-weight: 600;
+}
+
+body[data-theme="material-design"] .pill {
+  background: var(--md-surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   设置页零件：主题卡 / 色卡 / 空状态 / 提示条
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] .theme-card {
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow: var(--shadow-sm);
+}
+
+body[data-theme="material-design"] .theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="material-design"] .theme-card--active {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+body[data-theme="material-design"] .theme-card__chip {
+  border-color: var(--line);
+  box-shadow: inset 0 0 0 2px var(--bg-2);
+}
+
+body[data-theme="material-design"] .empty,
+body[data-theme="material-design"] .upload-drop {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--md-surface-2);
+  box-shadow: none;
+}
+
+body[data-theme="material-design"] .toast {
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+}
+
+body[data-theme="material-design"] .stat__num {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   焦点与选中：Material 的 2px 主色焦点环
+   -------------------------------------------------------------------------- */
+body[data-theme="material-design"] :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+body[data-theme="material-design"] ::selection {
+  background: #D0BCFF;
+  color: #1D1B20;
+}
+
+body[data-theme="material-design"][data-mode="night"] ::selection {
+  background: #4F378B;
+  color: #E6E1E5;
+}
+
+/* --------------------------------------------------------------------------
+   窄屏：批注面板改成从下往上顶，阅读纸张让开两侧点读热区
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body[data-theme="material-design"] .shelf__hero {
+    padding: 20px 18px;
+  }
+
+  body[data-theme="material-design"] .reader__content {
+    padding: 26px 20px 30px;
+  }
+}
+
+@media (max-width: 560px) {
+  body[data-theme="material-design"] .reader__content {
+    padding-left: 38px;
+    padding-right: 38px;
+  }
+}
