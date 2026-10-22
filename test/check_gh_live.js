@@ -130,6 +130,28 @@ function gh(method, apiPath, body) {
     });
 }
 
+/**
+ * 把仓库里所有 900+ 的「自检章」扫掉。
+ * 自检用 900+ 的章号（不碰她的 24 章），但上一轮跑挂了的话会留下残留 ——
+ * 残留会变成「她划了还没回」的条目，出现在她的待回队列里。
+ */
+async function cleanScratch(bookId) {
+  const annoDir = '/repos/' + SITE.owner + '/' + SITE.repo + '/contents/data/books/' + bookId + '/annotations';
+  let list = [];
+  try { list = await gh('GET', annoDir); } catch (e) { return; }
+  for (const item of (Array.isArray(list) ? list : [])) {
+    const m = /(\d+)\.json\.enc$/.exec(String(item.name || ''));
+    if (!m) continue;
+    if (Number(m[1]) < 900) continue;
+    const p = annoDir + '/' + item.name;
+    try {
+      const meta = await gh('GET', p);
+      await gh('DELETE', p, { message: '清理：自检残留', sha: meta.sha, branch: SITE.branch });
+      console.log('  （清掉了自检残留：' + item.name + '）');
+    } catch (e) { /* ignore */ }
+  }
+}
+
 // ------------------------------------------------------------------ 主流程
 
 (async function main() {
@@ -202,6 +224,9 @@ function gh(method, apiPath, body) {
 
   console.log('');
   console.log('=== 待回队列 ===');
+  // 先清场：把**所有** 900+ 的自检章都扫掉
+  // （上一轮跑挂了没清干净的话，残留会变成「她划了还没回」的条目，污染她的待回队列）
+  await cleanScratch(gudao.id);
   const pending = await api.handle('/api/pending');
   ok('待回是数组', Array.isArray(pending.items));
   ok('她划的都已经被回过了（队列空）', pending.items.length === 0, 'n=' + pending.items.length);
@@ -245,18 +270,9 @@ function gh(method, apiPath, body) {
   //   · 路径是新的 → raw 的 CDN 上不可能有旧版本 → 断言数得准
   const SCRATCH = 900 + Math.floor(Math.random() * 90);
 
-  // 先清场（万一上次跑挂了）
-  {
-    const scratchPath = '/repos/' + SITE.owner + '/' + SITE.repo + '/contents/data/books/' + gudao.id +
-      '/annotations/' + SCRATCH + '.json.enc';
-    try {
-      const old = await gh('GET', scratchPath);
-      await gh('DELETE', scratchPath, { message: '清理：上一轮自检残留', sha: old.sha, branch: SITE.branch });
-      console.log('  （清掉了上一轮自检的残留）');
-    } catch (e) {
-      if (e.status !== 404) throw e;
-    }
-  }
+  // 先清场：把**所有** 900+ 的自检章都扫掉
+  // （上一轮跑挂了没清干净的话，残留会变成「她划了还没回」的条目，污染她的待回队列）
+  await cleanScratch(gudao.id);
 
   const wrote = await api.handle('/api/books/' + encodeURIComponent(gudao.id) + '/annotations/' + SCRATCH,
     { method: 'POST', json: { anchor: '这一句我要记一辈子。', note: '端到端自检', paraIndex: 3 } });
