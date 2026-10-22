@@ -110,6 +110,11 @@
   /**
    * 解密。密码不对的话，WebCrypto 会直接抛错（认证标签对不上）——
    * 这正是「密码对不对」的唯一判据，比比哈希字符串可靠。
+   *
+   * ⚠️ 两种情况会走到这里，要分清楚：
+   *   1. 密码不对
+   *   2. 文件本身坏了（比如被谁用明文覆写过）—— 这种情况 GitHub 的历史里还有旧版本，
+   *      可以用 `test/restore_annos.js` 捞回来
    */
   async function decryptText(key, blob) {
     var o = blob;
@@ -117,17 +122,22 @@
       try {
         o = JSON.parse(o);
       } catch (e) {
-        throw new Error('vault: 这段不是加密数据');
+        throw new Error('vault: 这段不是加密数据（文件可能被明文覆写过，GitHub 历史里还有旧版本，可以用 restore_annos.js 捞回来）');
       }
     }
     if (!o || o.v !== 1 || o.alg !== 'AES-GCM' || !o.iv || !o.ct) {
-      throw new Error('vault: 格式不认识');
+      throw new Error('vault: 这个文件不是用密码加密的（密码不对，或者它被写坏了 —— GitHub 历史里还有旧版本，可以用 restore_annos.js 捞回来）');
     }
-    var pt = await subtle().decrypt(
-      { name: 'AES-GCM', iv: b64decode(o.iv) },
-      key,
-      b64decode(o.ct)
-    );
+    var pt;
+    try {
+      pt = await subtle().decrypt(
+        { name: 'AES-GCM', iv: b64decode(o.iv) },
+        key,
+        b64decode(o.ct)
+      );
+    } catch (e) {
+      throw new Error('vault: 密码不对，解不开（或者这个文件被改过了）');
+    }
     return fromBytes(new Uint8Array(pt));
   }
 

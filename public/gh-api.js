@@ -286,13 +286,26 @@
       });
   }
 
-  /** 读一个文件的 sha + 内容（写之前要拿 sha） */
-  function readMeta(site, rel) {
+  /**
+   * 读一个文件的 sha + 内容（写之前要拿 sha）
+   *
+   * retry404：写文件之前，404 有可能是**假的**（网络抖了一下、CDN 没同步）。
+   * 那种情况下拿到的 null 会让后面 PUT 不带 sha → GitHub 报
+   * 「"sha" wasn't supplied.」（2026-10-22 姜来踩的就是这个）。
+   * 所以写之前宁可多问一次。
+   */
+  function readMeta(site, rel, retry404) {
     return withRetry(function () {
       return apiFetch(contentsUrl(site, rel), { headers: { Accept: 'application/vnd.github+json' } });
     }).then(function (res) {
-        if (res.status === 404) return null;
-        if (!res.ok) fail('读仓库失败（' + res.status + '）：' + rel, res.status);
+        if (res.status === 404) {
+          if (retry404) {
+            // 再问一次 —— 第一次的 404 可能是网络抖出来的
+            return readMeta(site, rel, false);
+          }
+          return null;
+        }
+        if (!res.ok) quotaFail(res.status, rel);
         var meta = res.json || {};
         var text = null;
         if (meta.content && meta.encoding === 'base64') {
@@ -363,7 +376,15 @@
   }
 
   /**
-   * 读 → 合并 → 加密 → 写。409（有人同时改了）→ 重读、重合并、再写，最多 3 次。
+   * 读 → 合并 → 加密 → 写。
+   *
+   * 三道保险（都是被真实事故逼出来的）：
+   *  1. **409**（有人同时改了）→ 重读、重合并、再写，最多 3 次
+   *  2. **422 "sha wasn't supplied"** → 说明「文件其实存在，但我们这次没拿到 sha」
+   *     （比如那次 GET 恰好抖了一下返回了 404）→ **专门再去要一次 sha**，再写
+   *  3. **写之前本地自检**：把刚加密的东西立刻解回来，对不上就当场拦住 ——
+   *     宁可报错，也别把文件写坏（2026-10-22 就出过一回密文被套了两层 JSON 的事故）
+   *
    * mergeFn(current) 返回要写进去的新值；defaultValue 是「文件本来就不存在」时的底。
    * 写成功后本地缓存立刻更新 —— 她马上就能看见自己划的线，不用等服务器。
    */
@@ -375,7 +396,8 @@
     function round() {
       attempt++;
       var sha = null;
-      return readMeta(site, rel).then(function (cur) {
+      // 写之前多问一次：404 有可能是网络抖出来的（那次 422 就是这么来的）
+      return readMeta(site, rel, true).then(function (cur) {
         if (!cur || !cur.text) return defaultValue;
         sha = cur.sha;
         return Promise.resolve(vault().decryptJson(key, cur.text)).then(function (v) {
@@ -387,23 +409,36 @@
         var next = mergeFn ? mergeFn(current) : current;
         return Promise.resolve(vault().encryptJson(key, next)).then(function (enc) {
           var blob = stampEnvelope(enc);
-          return putFile(site, rel, blob, message, sha).then(function (res) {
-            if (res.ok) {
-              S.cache.files[rel] = { text: blob, sha: res.sha, gen: S.cache.gen };
-              S.cache.values[rel] = { value: next, gen: S.cache.gen };
-              return { ok: true, value: next };
+          // 写之前本地自检：刚加密的东西立刻解回来，对不上就说明要写出去的是坏的
+          return Promise.resolve(vault().decryptJson(key, blob)).then(function (back) {
+            if (JSON.stringify(back) !== JSON.stringify(next)) {
+              fail('写之前自检没过（加密后的东西解回来对不上），已经拦住，没写出去', 500);
             }
-            if (res.status === 409 && attempt < MAX_RETRY) return round();   // 重读重合并再写
-            if (res.status === 409) {
-              fail('写不进去：仓库里的文件同时被人改了，试了 ' + MAX_RETRY + ' 次都没写上，再试一次', 409);
-            }
-            fail('写不进去：' + (res.message || ('HTTP ' + res.status)), res.status || 500);
+            return putFile(site, rel, blob, message, sha).then(function (res) {
+              if (res.ok) {
+                S.cache.files[rel] = { text: blob, sha: res.sha, gen: S.cache.gen };
+                S.cache.values[rel] = { value: next, gen: S.cache.gen };
+                return { ok: true, value: next };
+              }
+              if (res.status === 409 && attempt < MAX_RETRY) return round();   // 重读重合并再写
+              if (res.status === 409) {
+                fail('写不进去：仓库里的文件同时被人改了，试了 ' + MAX_RETRY + ' 次都没写上，再试一次', 409);
+              }
+              // 422 "sha wasn't supplied" → 文件其实在，只是这次没拿到 sha。
+              // **重读 + 重合并 + 重写**（不能拿同一个 blob 再写一遍 ——
+              // 那会把她原来那条批注弄丢，因为她那份是拿 defaultValue 算出来的）。
+              if (res.status === 422 && /sha/i.test(res.message || '') && attempt < MAX_RETRY) {
+                return round();
+              }
+              fail('写不进去：' + (res.message || ('HTTP ' + res.status)), res.status || 500);
+              return null;
+            });
           });
         });
       });
     }
 
-    return round().then(function (r) { return r.value; });
+    return round().then(function (r) { return r && r.value; });
   }
 
   // ------------------------------------------------------------ 解密
