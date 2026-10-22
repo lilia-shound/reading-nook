@@ -116,7 +116,7 @@ function gh(method, apiPath, body) {
     headers['Content-Type'] = 'application/json';
     payload = JSON.stringify(body);
   }
-  return fetch('https://api.github.com' + apiPath, { method, headers, body: payload })
+  return retry(() => fetch('https://api.github.com' + apiPath, { method, headers, body: payload }))
     .then(async (res) => {
       const text = await res.text();
       let data = null;
@@ -235,7 +235,24 @@ function gh(method, apiPath, body) {
   console.log('');
   console.log('=== 划线真写回仓库 ===');
   api.setToken(TOKEN);
-  const SCRATCH = 99;   // 用一个不存在的章号，建完就删，不碰她的数据
+  // 用一个**每次都不一样**的章号（900+）：
+  //   · 不碰她的数据（她只有 24 章）
+  //   · 路径是新的 → raw 的 CDN 上不可能有旧版本 → 断言数得准
+  const SCRATCH = 900 + Math.floor(Math.random() * 90);
+
+  // 先清场（万一上次跑挂了）
+  {
+    const scratchPath = '/repos/' + SITE.owner + '/' + SITE.repo + '/contents/data/books/' + gudao.id +
+      '/annotations/' + SCRATCH + '.json.enc';
+    try {
+      const old = await gh('GET', scratchPath);
+      await gh('DELETE', scratchPath, { message: '清理：上一轮自检残留', sha: old.sha, branch: SITE.branch });
+      console.log('  （清掉了上一轮自检的残留）');
+    } catch (e) {
+      if (e.status !== 404) throw e;
+    }
+  }
+
   const wrote = await api.handle('/api/books/' + encodeURIComponent(gudao.id) + '/annotations/' + SCRATCH,
     { method: 'POST', json: { anchor: '这一句我要记一辈子。', note: '端到端自检', paraIndex: 3 } });
   ok('写成功了', !!(wrote && wrote.annotation), JSON.stringify(wrote));
@@ -244,9 +261,9 @@ function gh(method, apiPath, body) {
   ok('划的原文一字不差', wrote.annotation.anchor === '这一句我要记一辈子。');
 
   // 仓库里那个文件是真的密文
-  const rawFile = await fetch('https://raw.githubusercontent.com/' + SITE.owner + '/' + SITE.repo + '/' + SITE.branch +
+  const rawFile = await retry(() => fetch('https://raw.githubusercontent.com/' + SITE.owner + '/' + SITE.repo + '/' + SITE.branch +
     '/data/books/' + gudao.id + '/annotations/' + SCRATCH + '.json.enc?t=' + Date.now())
-    .then((r) => r.text());
+    .then((r) => r.text()));
   ok('仓库里那个文件是密文', /"alg"\s*:\s*"AES-GCM"/.test(rawFile) && /"ct"\s*:/.test(rawFile));
   ok('仓库里看不到明文', rawFile.indexOf('这一句我要记一辈子') < 0);
   ok('仓库里看不到她的批注', rawFile.indexOf('端到端自检') < 0);
