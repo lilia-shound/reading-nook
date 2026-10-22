@@ -1,0 +1,25 @@
+{
+  "mode": "static",
+  "owner": "lilia-shound",
+  "repo": "reading-nook",
+  "branch": "main",
+  "kdf": {
+    "algo": "PBKDF2-SHA256",
+    "iter": 210000,
+    "salt": "z9oA24U9ra9hy1vNjymZfg=="
+  },
+  "names": {
+    "user": "姜来",
+    "ai": "姜去"
+  },
+  "subtitle": "姜来 & 姜去",
+  "login_hint": "两个人的生日相加",
+  "static_only": [
+    "upload",
+    "notes",
+    "workbench",
+    "settings-server",
+    "ai-auto"
+  ],
+  "updatedAt": "2026-10-22T02:59:13.049Z"
+}
