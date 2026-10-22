@@ -210,6 +210,27 @@ async function main() {
     return;
   }
 
+  if (cmd === 'delete-file') {
+    const filePath = rest[0];
+    if (!filePath) throw new Error('用法: delete-file <path>');
+    let sha = null;
+    try {
+      const r = await req('GET', '/repos/' + repo + '/contents/' + filePath + '?ref=' + encodeURIComponent(branch));
+      sha = r.sha;
+    } catch (e) {
+      if (e.status !== 404) throw e;
+      console.log('那个文件本来就不在。');
+      return;
+    }
+    const r = await req('DELETE', '/repos/' + repo + '/contents/' + filePath, {
+      message: flags.message || ('删除 ' + filePath),
+      sha: sha,
+      branch: branch
+    });
+    console.log('已删除', filePath);
+    return;
+  }
+
   if (cmd === 'delete-repo') {
     const name = rest[0] || repo.split('/')[1];
     await req('DELETE', '/repos/lilia-shound/' + name);

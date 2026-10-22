@@ -168,6 +168,16 @@
         try { json = text ? JSON.parse(text) : null; } catch (e) { json = null; }
         return { status: res.status, ok: res.ok, text: text, json: json };
       });
+    }).catch(function (e) {
+      // 网络层失败（连接被掐、CDN 抖了一下）——**不是 HTTP 状态码，是 promise 直接 reject**。
+      // 这种最常见，所以要变成一个「可重试的响应」，走下面同一套重试 + 换路逻辑。
+      return {
+        status: 0,
+        ok: false,
+        text: '',
+        json: null,
+        networkError: String((e && e.message) || e)
+      };
     });
   }
 
@@ -177,7 +187,8 @@
 
   // 404 不算「抖」—— 那是一个确定答案（文件不存在），重试只是白等。
   // CDN 同步延迟导致的「该在却不在」，上面有专门的兜底（换新鲜那条路再问一次）。
-  var TRANSIENT = [403, 429, 500, 502, 503, 504];
+  // 0 = 网络层失败（fetch 直接 reject）—— 这个**最常见**，必须重试。
+  var TRANSIENT = [0, 403, 429, 500, 502, 503, 504];
 
   function delay(ms) {
     return new Promise(function (r) { setTimeout(r, ms); });
@@ -242,7 +253,7 @@
           return null;
         }
         if (!res.ok) {
-          // raw 抖了（限流 / 5xx）→ 换新鲜那条路再试一次
+          // raw 抖了（网络失败 / 限流 / 5xx）→ 换新鲜那条路再试一次
           if (TRANSIENT.indexOf(res.status) >= 0) return readFresh(site, rel);
           fail('读仓库失败（' + res.status + '）：' + rel, res.status);
         }
