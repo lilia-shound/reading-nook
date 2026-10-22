@@ -291,6 +291,24 @@
   }
 
   /**
+   * 密文信封上补一个 mtime（毫秒时间戳）。
+   *
+   * 加密本身还是 vault.js 那一份（这里只是往信封上加一个字段），
+   * 跟 Node 端一个口径：lib/ghbackend.js、tools/push-repo.js 也是这么写的。
+   * 两台设备靠它判断「谁更新」—— 没有这个字段，浏览器写的和命令行写的就没法比。
+   */
+  function stampEnvelope(blob) {
+    try {
+      var o = JSON.parse(String(blob));
+      if (o && typeof o === 'object' && !Array.isArray(o)) {
+        o.mtime = Date.now();
+        return JSON.stringify(o);
+      }
+    } catch (e) { /* 不是信封就原样返回 */ }
+    return String(blob);
+  }
+
+  /**
    * 读 → 合并 → 加密 → 写。409（有人同时改了）→ 重读、重合并、再写，最多 3 次。
    * mergeFn(current) 返回要写进去的新值；defaultValue 是「文件本来就不存在」时的底。
    * 写成功后本地缓存立刻更新 —— 她马上就能看见自己划的线，不用等服务器。
@@ -314,9 +332,10 @@
       }).then(function (current) {
         var next = mergeFn ? mergeFn(current) : current;
         return Promise.resolve(vault().encryptJson(key, next)).then(function (enc) {
-          return putFile(site, rel, enc, message, sha).then(function (res) {
+          var blob = stampEnvelope(enc);
+          return putFile(site, rel, blob, message, sha).then(function (res) {
             if (res.ok) {
-              S.cache.files[rel] = { text: enc, sha: res.sha, gen: S.cache.gen };
+              S.cache.files[rel] = { text: blob, sha: res.sha, gen: S.cache.gen };
               S.cache.values[rel] = { value: next, gen: S.cache.gen };
               return { ok: true, value: next };
             }

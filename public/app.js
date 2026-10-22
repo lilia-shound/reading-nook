@@ -603,6 +603,16 @@
     $('#readerTitle').textContent = book.title || '正在打开…';
     $('#readerProgress').textContent = '';
     if (!fromRoute) setHash('read', book.id, current.chapter);
+    // 书架给的是缩略版书对象（没有 chapters），目录要靠章节清单 ——
+    // 去要一份完整的。（原来是直接用缩略版，目录一直是空的）
+    if (!book.chapters) {
+      try {
+        const r = await api('/api/books/' + encodeURIComponent(book.id));
+        if (r && r.book && current && current.book.id === book.id) {
+          current.book = r.book;
+        }
+      } catch (e) { /* 要不到就算了，目录空着也能读 */ }
+    }
     try {
       await loadChapter(current.chapter);
     } catch (e) {

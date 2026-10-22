@@ -122,22 +122,14 @@ function createStore(backend) {
   function listPending() {
     const items = [];
     for (const book of listBooks()) {
-      let files = [];
-      try {
-        files = be.readdirSync('books/' + book.id + '/annotations');
-      } catch (e) {
-        continue;
-      }
+      // 目录不存在就是没有批注（readdirSync 自己返回 []）
+      // 但密码不对、网络不通这种错要往外冒 —— 闷掉的话就变成「啥也没有」，最难查
+      const files = be.readdirSync('books/' + book.id + '/annotations');
       for (const f of files) {
         if (!f.endsWith('.json')) continue;
         const chapter = Number(f.replace(/\.json$/, ''));
         if (Number.isNaN(chapter)) continue;
-        let list = [];
-        try {
-          list = readJson('books/' + book.id + '/annotations/' + f, []);
-        } catch (e) {
-          continue;
-        }
+        const list = readJson('books/' + book.id + '/annotations/' + f, []);
         if (!Array.isArray(list)) continue;
         for (const a of list) {
           if (a.who !== 'user') continue;
@@ -230,21 +222,11 @@ function createStore(backend) {
 
   /** 资料库 */
   function listDocs() {
-    let files = [];
-    try {
-      files = be.readdirSync('docs');
-    } catch (e) {
-      return [];
-    }
+    const files = be.readdirSync('docs');
     const outDocs = [];
     for (const f of files) {
       if (!f.endsWith('.md')) continue;
-      let raw = '';
-      try {
-        raw = be.readFileSync('docs/' + f);
-      } catch (e) {
-        continue;
-      }
+      const raw = be.readFileSync('docs/' + f); // 解不开就让错冒出来，别闷成「0 篇」
       const parsed = parseFrontMatter(raw);
       const meta = parsed.meta;
       outDocs.push({
