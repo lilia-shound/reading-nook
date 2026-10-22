@@ -202,13 +202,19 @@
     return new Promise(function (r) { setTimeout(r, ms); });
   }
 
-  /** 只对「会抖」的失败重试；别的错误直接返回给上层处理 */
+  /**
+   * 只对「会抖」的失败重试；别的错误直接返回给上层处理。
+   *
+   * 网络层失败（status 0）值得**多等一会儿** —— 手机在弱网、地铁、电梯里
+   * 可能只是慢，不是断。退避 0.8s / 1.6s / 2.4s，一轮下来差不多 5 秒。
+   */
   function withRetry(fn, times) {
-    var n = times || 3;
+    var n = times || 4;
     return fn().then(function (res) {
       if (res && res.ok) return res;
       if (res && TRANSIENT.indexOf(res.status) >= 0 && n > 1) {
-        return delay(400 * (3 - n)).then(function () { return withRetry(fn, n - 1); });
+        var wait = res.status === 0 ? 800 * (4 - n) : 400 * (3 - n);
+        return delay(wait).then(function () { return withRetry(fn, n - 1); });
       }
       return res;
     });
@@ -340,6 +346,53 @@
         if (!res.ok) quotaFail(res.status, dir);
         return Array.isArray(res.json) ? res.json : [];
       });
+  }
+
+  /**
+   * 第三条路：写不进去时，**改走她自己的电脑代写**。
+   *
+   * 为什么需要：写仓库必须打 api.github.com（要拿 sha），
+   * 而**手机在 5G 上经常连不上 api.github.com**（raw 倒通常通）。
+   * 那台电脑的网络是好的 —— 所以让那台电脑替我们写。
+   *
+   * 隧道地址放在仓库的 data/tunnel.json（加密）里，
+   * 由她电脑上的隧道守护进程在地址变化时自动更新。
+   *
+   * @returns {Promise<Object|null>} 成功返回隧道的响应；走不通返回 null
+   */
+  async function tryTunnel(site, apiPath, method, payload) {
+    try {
+      const enc = await readText(site, 'data/tunnel.json.enc', true);
+      if (!enc) return null;
+      const t = JSON.parse(await vault().decryptText(needKey(), enc));
+      if (!t || !t.url) return null;
+      const res = await fetch(t.url + apiPath, {
+        method: method || 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': 'rk=' + (S.passcode || '')
+        },
+        body: JSON.stringify(payload || {})
+      });
+      const text = await res.text();
+      if (!res.ok) return null;
+      try { return JSON.parse(text); } catch (e) { return null; }
+    } catch (e) {
+      // 走不通不是灾难（还有第三条路 / 有更清楚的提示），但要留个痕迹
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[nook] 改走家里电脑这条路没通：', (e && e.message) || e);
+      }
+      return null;
+    }
+  }
+
+  /** 两条路都不通 —— 给人话 */
+  function writeFailBoth(err) {
+    fail('写不进仓库：GitHub 现在连不上（可能是你当前网络的问题），'
+      + '家里电脑那条路也没通。\n'
+      + '· 连着家里的 Wi-Fi 时，用电脑上的那版划线最稳\n'
+      + '· 或者换个网络再试一次\n'
+      + '（' + ((err && err.message) || '不知道怎么了') + '）', 503);
   }
 
   // ------------------------------------------------------------ 写
@@ -720,6 +773,9 @@
     return Promise.resolve().then(function () {
       return vault().deriveKey(passcode, site.kdf.salt, site.kdf.iter);
     }).then(function (key) {
+      // 密码只活在内存里（不落盘、不进 localStorage）。
+      // 留着它是为了「走家里电脑代写」那条兜底路 —— 隧道那边的 cookie 就是密码。
+      S.passcode = passcode;
       // 解密书架 → 成功才算密码对（这是唯一的判据，比比哈希可靠）
       return readText(site, LIBRARY_PATH, true).then(function (enc) {
         if (enc == null) fail('仓库里没有书架文件（' + LIBRARY_PATH + '），先让姜去推一次', 404);
@@ -951,13 +1007,20 @@
           ts: nowIso(),
           replies: []
         };
-        var merged = await writeJson(site, 'data/books/' + aid + '/annotations/' + ach + '.json.enc',
-          '划线：' + (abk.title || aid) + ' 第 ' + ach + ' 章', function (current) {
-            var list2 = Array.isArray(current) ? current.slice() : [];
-            list2.push(item);
-            return list2;
-          }, []);
-        return { annotation: merged[merged.length - 1] };
+        try {
+          var merged = await writeJson(site, 'data/books/' + aid + '/annotations/' + ach + '.json.enc',
+            '划线：' + (abk.title || aid) + ' 第 ' + ach + ' 章', function (current) {
+              var list2 = Array.isArray(current) ? current.slice() : [];
+              list2.push(item);
+              return list2;
+            }, []);
+          return { annotation: merged[merged.length - 1] };
+        } catch (e) {
+          // 写不进仓库 → 可能是她当前网络连不上 GitHub → 改走家里电脑代写
+          var via = await tryTunnel(site, '/api/books/' + aid + '/annotations/' + ach, 'POST', payload);
+          if (via && via.annotation) return via;
+          writeFailBoth(e);
+        }
       }
       fail('这个接口只接受 GET 或 POST', 405);
     }
@@ -975,15 +1038,22 @@
       }
       if (method === 'POST') {
         var patch = body || {};
-        var next = await writeJson(site, 'data/books/' + pid + '/progress.json.enc',
-          '阅读进度：' + (pbk.title || pid), function (current) {
-            var cur = (current && typeof current === 'object' && !Array.isArray(current))
-              ? current : { chapter: 1, paraIndex: 0, ratio: 0 };
-            var out = Object.assign({}, cur, patch);
-            out.updatedAt = nowIso();
-            return out;
-          }, { chapter: 1, paraIndex: 0, ratio: 0 });
-        return { progress: next };
+        try {
+          var next = await writeJson(site, 'data/books/' + pid + '/progress.json.enc',
+            '阅读进度：' + (pbk.title || pid), function (current) {
+              var cur = (current && typeof current === 'object' && !Array.isArray(current))
+                ? current : { chapter: 1, paraIndex: 0, ratio: 0 };
+              var out = Object.assign({}, cur, patch);
+              out.updatedAt = nowIso();
+              return out;
+            }, { chapter: 1, paraIndex: 0, ratio: 0 });
+          return { progress: next };
+        } catch (e) {
+          // 同划线：GitHub 连不上 → 改走家里电脑代写
+          var via2 = await tryTunnel(site, '/api/books/' + pid + '/progress', 'POST', patch);
+          if (via2 && via2.progress) return via2;
+          writeFailBoth(e);
+        }
       }
       fail('这个接口只接受 GET 或 POST', 405);
     }
