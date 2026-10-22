@@ -180,7 +180,8 @@ async function collectSite() {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);
   }
-  for (const name of ['lib/ghbackend.js', 'lib/vfs.js', 'lib/store.js', 'lib/docs.js']) {
+  for (const name of ['lib/ghbackend.js', 'lib/vfs.js', 'lib/store.js', 'lib/docs.js',
+    'server.js', 'nook.js', 'package.json']) {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);
   }

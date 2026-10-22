@@ -1,0 +1,14 @@
+{
+  "name": "reading-nook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "共读小屋 - 和你的 AI 一起读小说的自托管网页。零依赖。",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "serve": "node nook.js serve"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
