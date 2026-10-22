@@ -428,8 +428,12 @@
    */
   async function detectMode() {
     try {
-      const res = await fetch('site.json', { cache: 'no-store' });
-      const site = await res.json();
+      // 内联的站点配置优先（public/site-inline.js）→ 启动时不用发网络请求
+      let site = window.NOOK_SITE || null;
+      if (!site) {
+        const res = await fetch('site.json', { cache: 'no-store' });
+        site = await res.json();
+      }
       if (!site || site.mode !== 'static') return;
       window.__NOOK_STATIC__ = true;
       window.__NOOK_SITE__ = site;

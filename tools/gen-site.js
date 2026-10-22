@@ -58,3 +58,20 @@ console.log('已写 public/site.json');
 console.log('  仓库:', owner + '/' + repo + '@' + branch);
 console.log('  盐  :', salt);
 console.log('  迭代:', Vault.ITERATIONS);
+
+// 同一份配置再内联成一份脚本 —— 让浏览器**启动时一个网络请求都不用发**。
+// 起因：site.json 放在 Pages 上，而 Pages 的 CDN 会抖（实测 403 / ECONNRESET / 超时）。
+// 一抖 → 读不到 site.json → 连登录框都出不来 → 整个站点打不开。
+// 内联之后，配置跟着站点代码一起走，零依赖。
+const inline = '/*!\n'
+  + ' * site-inline.js —— 由 tools/gen-site.js 生成，**别手改**\n'
+  + ' *\n'
+  + ' * 站点配置的「随身副本」：让浏览器启动时不必先去网络拿 site.json\n'
+  + ' *（Pages 的 CDN 会抖，一抖就整个站点开不了门）\n'
+  + ' *\n'
+  + ' * 改了配置就重新跑 `node tools/gen-site.js`，然后 `node tools/push-repo.js --site`\n'
+  + ' */\n'
+  + 'window.NOOK_SITE = ' + JSON.stringify(site, null, 2) + ';\n';
+const INLINE_FILE = path.join(ROOT, 'public', 'site-inline.js');
+fs.writeFileSync(INLINE_FILE, inline, 'utf8');
+console.log('已写 public/site-inline.js（浏览器启动不用发请求了）');

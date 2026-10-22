@@ -109,6 +109,14 @@
   function loadSite(force) {
     if (S.site && !force) return Promise.resolve(S.site);
     if (S.sitePending && !force) return S.sitePending;
+    // **优先用内联的那份**（public/site-inline.js，由 tools/gen-site.js 生成）。
+    // 理由：site.json 放在 Pages 上，而 Pages 的 CDN 会抖 ——
+    // 一抖就读不到配置，连登录框都出不来，整个站点就开不了门。
+    // 内联之后，启动时一个网络请求都不用发。
+    if (global.NOOK_SITE && global.NOOK_SITE.mode === 'static') {
+      S.site = global.NOOK_SITE;
+      return Promise.resolve(S.site);
+    }
     // 相对路径 —— Pages 部署在 /reading-nook/ 子目录下，写 /site.json 会 404
     S.sitePending = fetch('site.json', { headers: { Accept: 'application/json' } })
       .then(function (res) {

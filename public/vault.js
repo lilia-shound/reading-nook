@@ -108,6 +108,32 @@
   }
 
   /**
+   * 剥掉多余的 JSON.stringify 层。
+   *
+   * 为什么需要：有人（2026-10-22 就是云端那位）改仓库里的数据时，
+   * 把**密文信封当字符串又 JSON.stringify 了一次**，
+   * 文件内容变成 `"{\"v\":1,...}"` —— 里面套着一层引号，解不开。
+   * 剥掉那层就能读出来，数据一点没丢。
+   *
+   * 正常情况：文件内容是 `{"v":1,...}` → parse 一次就是信封 → 直接返回。
+   */
+  function unwrapEnvelope(blob) {
+    var o = blob;
+    for (var i = 0; i < 3; i++) {
+      if (o && typeof o === 'object' && !Array.isArray(o)) {
+        return (o.v === 1 && o.alg === 'AES-GCM') ? o : null;
+      }
+      if (typeof o !== 'string') return null;
+      try {
+        o = JSON.parse(o);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
    * 解密。密码不对的话，WebCrypto 会直接抛错（认证标签对不上）——
    * 这正是「密码对不对」的唯一判据，比比哈希字符串可靠。
    *
@@ -117,15 +143,8 @@
    *      可以用 `test/restore_annos.js` 捞回来
    */
   async function decryptText(key, blob) {
-    var o = blob;
-    if (typeof o === 'string') {
-      try {
-        o = JSON.parse(o);
-      } catch (e) {
-        throw new Error('vault: 这段不是加密数据（文件可能被明文覆写过，GitHub 历史里还有旧版本，可以用 restore_annos.js 捞回来）');
-      }
-    }
-    if (!o || o.v !== 1 || o.alg !== 'AES-GCM' || !o.iv || !o.ct) {
+    var o = unwrapEnvelope(blob);
+    if (!o) {
       throw new Error('vault: 这个文件不是用密码加密的（密码不对，或者它被写坏了 —— GitHub 历史里还有旧版本，可以用 restore_annos.js 捞回来）');
     }
     var pt;
@@ -165,6 +184,7 @@
     encryptText: encryptText,
     decryptText: decryptText,
     encryptJson: encryptJson,
-    decryptJson: decryptJson
+    decryptJson: decryptJson,
+    unwrapEnvelope: unwrapEnvelope
   };
 });
