@@ -17,7 +17,11 @@ const BASE = 'http://127.0.0.1:8231';
 const COOKIE = 'rk=' + (process.env.NOOK_PASS || '06090823');
 const TOKEN = (process.env.GH_TOKEN || '').trim();
 const BOOK = 'b_mvhx4hgqqddcvb';   // 《古道》
-const SCRATCH = 97;                // 用一个不存在的章号，验完删掉
+// 自检用的章号：**一定要在 900+** ——
+// 清理脚本（check_gh_live.js 的 cleanScratch）只扫 900+，
+// 用小章号的话，测试中途挂掉就会留下垃圾条目，
+// 出现在姜来的「待回队列」里（云端姜去会去回它们）。
+const SCRATCH = 900 + Math.floor(Math.random() * 90);
 
 let passed = 0, failed = 0;
 function ok(name, cond, extra) {
@@ -99,38 +103,47 @@ function gh(method, apiPath, body) {
 
   console.log('');
   console.log('=== 本机划一道 → 仓库里有没有 ===');
-  const wrote = await api('/api/books/' + BOOK + '/annotations/' + SCRATCH,
-    { method: 'POST', json: { anchor: '本机写的一条自检', note: '跨设备同步自检', paraIndex: 1 } });
-  ok('本机写成功了', !!(wrote && wrote.annotation), JSON.stringify(wrote));
-  const annoId = wrote.annotation && wrote.annotation.id;
-
-  // 直接问仓库（绕开本机服务）
   const repoPath = '/repos/' + SITE.owner + '/' + SITE.repo + '/contents/data/books/' + BOOK +
     '/annotations/' + SCRATCH + '.json.enc';
   let meta = null;
-  try { meta = await gh('GET', repoPath); } catch (e) { /* 下面会报错 */ }
-  ok('仓库里多出那个文件', !!meta, meta ? '' : 'contents 接口没找到');
-  if (meta) {
-    const enc = Buffer.from(String(meta.content).replace(/\s+/g, ''), 'base64').toString('utf8');
-    ok('仓库里是密文', /"alg"\s*:\s*"AES-GCM"/.test(enc));
-    ok('仓库里看不到明文', enc.indexOf('本机写的一条自检') < 0);
-  }
+  try {
+    // ⚠️ 一定要 try/finally —— 测试中途挂掉的话，残留会出现在姜来的待回队列里
+    const wrote = await api('/api/books/' + BOOK + '/annotations/' + SCRATCH,
+      { method: 'POST', json: { anchor: '本机写的一条自检', note: '跨设备同步自检', paraIndex: 1 } });
+    ok('本机写成功了', !!(wrote && wrote.annotation), JSON.stringify(wrote));
 
-  console.log('');
-  console.log('=== 另一台设备（手机）能不能读到 ===');
-  const raw = await retry(() => fetch('https://raw.githubusercontent.com/' + SITE.owner + '/' + SITE.repo + '/' + SITE.branch +
-    '/data/books/' + BOOK + '/annotations/' + SCRATCH + '.json.enc?t=' + Date.now())
-    .then((r) => r.text()));
-  ok('手机那边能拿到那个文件', raw.length > 20);
-  ok('是密文（手机用密码解开）', /"ct"\s*:/.test(raw));
+    // 直接问仓库（绕开本机服务）
+    try { meta = await gh('GET', repoPath); } catch (e) { /* 下面会报错 */ }
+    ok('仓库里多出那个文件', !!meta, meta ? '' : 'contents 接口没找到');
+    if (meta) {
+      const enc = Buffer.from(String(meta.content).replace(/\s+/g, ''), 'base64').toString('utf8');
+      ok('仓库里是密文', /"alg"\s*:\s*"AES-GCM"/.test(enc));
+      ok('仓库里看不到明文', enc.indexOf('本机写的一条自检') < 0);
+    }
 
-  console.log('');
-  console.log('=== 清理 ===');
-  if (meta) {
-    await gh('DELETE', repoPath, { message: '清理：本机同步自检', sha: meta.sha, branch: SITE.branch });
-    let gone = 0;
-    try { await gh('GET', repoPath); gone = 200; } catch (e) { gone = e.status || 0; }
-    ok('自检文件已删', gone === 404, 'status=' + gone);
+    console.log('');
+    console.log('=== 另一台设备（手机）能不能读到 ===');
+    const raw = await retry(() => fetch('https://raw.githubusercontent.com/' + SITE.owner + '/' + SITE.repo + '/' + SITE.branch +
+      '/data/books/' + BOOK + '/annotations/' + SCRATCH + '.json.enc?t=' + Date.now())
+      .then((r) => r.text()));
+    ok('手机那边能拿到那个文件', raw.length > 20);
+    ok('是密文（手机用密码解开）', /"ct"\s*:/.test(raw));
+  } finally {
+    console.log('');
+    console.log('=== 清理 ===');
+    if (meta) {
+      await gh('DELETE', repoPath, { message: '清理：本机同步自检', sha: meta.sha, branch: SITE.branch });
+      let gone = 0;
+      try { await gh('GET', repoPath); gone = 200; } catch (e) { gone = e.status || 0; }
+      ok('自检文件已删', gone === 404, 'status=' + gone);
+    } else {
+      // 写成功了但没读到 meta —— 也要按路径找出来删掉
+      try {
+        const m2 = await gh('GET', repoPath);
+        await gh('DELETE', repoPath, { message: '清理：本机同步自检', sha: m2.sha, branch: SITE.branch });
+        console.log('  （补删了自检文件）');
+      } catch (e) { /* 本来就不在 */ }
+    }
   }
 
   console.log('');
