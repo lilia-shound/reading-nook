@@ -163,7 +163,7 @@ async function collectSite() {
       push('.github/' + f.rel, f.full);
     }
   }
-  for (const name of ['README.md', '部署到公网.md']) {
+  for (const name of ['README.md', '部署到公网.md', '静态版说明.md']) {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);
   }
@@ -175,13 +175,22 @@ async function collectSite() {
     }
   }
   // 云端姜去要用的工具
-  for (const name of ['tools/gh-store.js', 'tools/gh-admin.js', 'tools/push-repo.js', 'tools/gen-site.js']) {
+  for (const name of ['tools/gh-store.js', 'tools/gh-admin.js', 'tools/push-repo.js', 'tools/gen-site.js',
+    'tools/setup-local.js']) {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);
   }
   for (const name of ['lib/ghbackend.js', 'lib/vfs.js', 'lib/store.js', 'lib/docs.js']) {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);
+  }
+  // 自检脚本（cloud 那边也能自己跑）
+  const testDir = path.join(ROOT, 'test');
+  if (fs.existsSync(testDir)) {
+    for (const f of walk(testDir, '', [])) {
+      if (!/^(check_[a-z_]+|e2e)\.js$/i.test(f.rel)) continue;
+      push('test/' + f.rel, f.full);
+    }
   }
   return entries;
 }
