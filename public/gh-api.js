@@ -235,6 +235,16 @@
    * fresh = true → 走 api.github.com 那条路（刚写完要马上读到自己的东西时用，
    *              raw 那条有 CDN 缓存延迟，会读到旧数据）。
    */
+  /** 403/429 在 GitHub 上九成是「访问额度用完了」—— 得给看得懂的话，不是干巴巴的 403 */
+  function quotaFail(status, what) {
+    if (status === 403 || status === 429) {
+      fail('GitHub 的访问额度用完了（没连 token 的话，每个 IP 每小时只有 60 次）。'
+        + '等几分钟就好；或者去「设置 → GitHub 连接」连上你的 token，额度就变成 5000 次/小时了。'
+        + '（刚才要读的是 ' + what + '）', status);
+    }
+    fail('读仓库失败（' + status + '）：' + what, status);
+  }
+
   function readText(site, rel, fresh) {
     var hit = S.cache.files[rel];
     if (hit && hit.gen === S.cache.gen) return Promise.resolve(hit.text);
@@ -255,7 +265,7 @@
         if (!res.ok) {
           // raw 抖了（网络失败 / 限流 / 5xx）→ 换新鲜那条路再试一次
           if (TRANSIENT.indexOf(res.status) >= 0) return readFresh(site, rel);
-          fail('读仓库失败（' + res.status + '）：' + rel, res.status);
+          quotaFail(res.status, rel);
         }
         return res.text;
       });
@@ -271,7 +281,7 @@
       return apiFetch(contentsUrl(site, rel), { headers: { Accept: 'application/vnd.github.raw' } });
     }).then(function (res) {
         if (res.status === 404) return null;
-        if (!res.ok) fail('读仓库失败（' + res.status + '）：' + rel, res.status);
+        if (!res.ok) quotaFail(res.status, rel);
         return res.text;
       });
   }
@@ -306,7 +316,7 @@
       return apiFetch(contentsUrl(site, dir), { headers: { Accept: 'application/vnd.github+json' } });
     }).then(function (res) {
         if (res.status === 404) return [];
-        if (!res.ok) fail('列目录失败（' + res.status + '）：' + dir, res.status);
+        if (!res.ok) quotaFail(res.status, dir);
         return Array.isArray(res.json) ? res.json : [];
       });
   }

@@ -475,7 +475,7 @@
     // 盯着有没有待回的批注，姜去回完自己会消失
     pollPending();
     if (pendingTimer) clearInterval(pendingTimer);
-    pendingTimer = setInterval(pollPending, 20000);
+    pendingTimer = setInterval(pollPending, pollInterval());
     applyRoute();
   }
 
@@ -1142,6 +1142,20 @@
   let pendingByBook = {};
   let pendingTimer = null;
   let lastActivityTs = 0;
+
+  /**
+   * 轮询间隔。
+   *
+   * **没连 GitHub 的时候要放慢** —— 未登录状态下 GitHub 的接口每个 IP 每小时只有 60 次，
+   * 20 秒一次 = 180 次/小时，直接把额度打满，然后「打不开书」、
+   * 而且报的是看不懂的 403。
+   * 连上 token 之后走的是认证接口（5000 次/小时），20 秒随便轮。
+   */
+  function pollInterval() {
+    if (!window.__NOOK_STATIC__) return 20000;
+    const has = window.GhApi && window.GhApi.hasToken ? window.GhApi.hasToken() : false;
+    return has ? 20000 : 240000;   // 没 token：4 分钟一次
+  }
 
   async function pollPending() {
     try {

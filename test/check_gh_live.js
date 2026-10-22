@@ -141,6 +141,11 @@ function gh(method, apiPath, body) {
   const env = makeEnv();
   const api = env.api;
 
+  // **先把 token 接上** —— 未登录状态下 GitHub 每个 IP 每小时只有 60 次，
+  // 测试要跑几十个请求，不带 token 会直接把额度打满（然后报看不懂的 403）。
+  // 她实际用的时候也会连上 token（划线本来就需要）。
+  api.setToken(TOKEN);
+
   console.log('=== 登录 ===');
   const h = await api.handle('/api/health');
   ok('health 通', h && h.ok === true);
@@ -270,6 +275,7 @@ function gh(method, apiPath, body) {
 
   // 换个环境读回来（= 另一台设备）
   const env2 = makeEnv();
+  env2.api.setToken(TOKEN);      // 另一台设备也连了 token（她每台设备都会连）
   await env2.api.login(PASSCODE);
   const back = await env2.api.handle('/api/books/' + encodeURIComponent(gudao.id) + '/annotations/' + SCRATCH);
   eq('另一台设备能读回来', (back.annotations || []).length, 1);
