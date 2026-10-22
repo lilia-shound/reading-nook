@@ -93,14 +93,25 @@ class ExitSignal extends Error {}
 function createStore(backend) {
   const be = backend || require('../lib/ghbackend');
 
+  /**
+   * 读一个 JSON 文件。
+   *   · 文件不在 → 用 fallback（跟 fs 一个脾气）
+   *   · 文件坏得不是 JSON → 也用 fallback（跟本地版 lib/store.js 一个脾气，不因为一个坏文件就全瘫）
+   *   · 别的错（密码不对、连不上 GitHub）→ 往外冒，闷掉的话就变成「啥也没有」，最难查
+   */
   function readJson(rel, fallback) {
+    let raw;
     try {
-      const raw = be.readFileSync(rel).replace(/^\uFEFF/, '');
-      if (!raw.trim()) return fallback;
+      raw = be.readFileSync(rel).replace(/^\uFEFF/, '');
+    } catch (e) {
+      if (e && e.code === 'ENOENT') return fallback;
+      throw e;
+    }
+    if (!raw.trim()) return fallback;
+    try {
       return JSON.parse(raw);
     } catch (e) {
-      if (fallback !== undefined && e && e.code === 'ENOENT') return fallback;
-      throw e;
+      return fallback;
     }
   }
 
@@ -190,7 +201,7 @@ function createStore(backend) {
       throw e;
     }
     if (!Array.isArray(list) || !list.length) {
-      throw new Error('这一章还没有批注，回不了（' + rel + ' 是空的）');
+      throw new Error('这一章还没有批注，回不了（' + rel + ' 不存在，或者是空的）');
     }
 
     let target = null;

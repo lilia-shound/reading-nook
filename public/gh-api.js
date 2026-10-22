@@ -171,6 +171,30 @@
     });
   }
 
+  // ------------------------------------------------------------ 重试
+  // GitHub 的 CDN 和限流会**抖**一下：明明前一秒还好好的，突然给你一个 403/429/5xx。
+  // 不重试的话，她就会遇到「刚才还好好的，怎么突然打不开书了」—— 而其实重试一次就好。
+
+  // 404 不算「抖」—— 那是一个确定答案（文件不存在），重试只是白等。
+  // CDN 同步延迟导致的「该在却不在」，上面有专门的兜底（换新鲜那条路再问一次）。
+  var TRANSIENT = [403, 429, 500, 502, 503, 504];
+
+  function delay(ms) {
+    return new Promise(function (r) { setTimeout(r, ms); });
+  }
+
+  /** 只对「会抖」的失败重试；别的错误直接返回给上层处理 */
+  function withRetry(fn, times) {
+    var n = times || 3;
+    return fn().then(function (res) {
+      if (res && res.ok) return res;
+      if (res && TRANSIENT.indexOf(res.status) >= 0 && n > 1) {
+        return delay(400 * (3 - n)).then(function () { return withRetry(fn, n - 1); });
+      }
+      return res;
+    });
+  }
+
   /**
    * 打 api.github.com。带上 token（有限流优惠），token 失效（401）就退回免 token 再试一次。
    * 注意：token 只发给 api.github.com，raw.githubusercontent.com 那条路绝不带。
@@ -209,13 +233,19 @@
     if (useFresh) {
       p = readFresh(site, rel);
     } else {
-      p = rawFetch(rawUrl(site, rel), { headers: { Accept: 'text/plain' } }).then(function (res) {
+      p = withRetry(function () {
+        return rawFetch(rawUrl(site, rel), { headers: { Accept: 'text/plain' } });
+      }).then(function (res) {
         if (res.status === 404) {
           // 最近仓库动过 → 可能是 CDN 还没同步，走新鲜那条路再试一次
           if (S.cache.gen > 0) return readFresh(site, rel);
           return null;
         }
-        if (!res.ok) fail('读仓库失败（' + res.status + '）：' + rel, res.status);
+        if (!res.ok) {
+          // raw 抖了（限流 / 5xx）→ 换新鲜那条路再试一次
+          if (TRANSIENT.indexOf(res.status) >= 0) return readFresh(site, rel);
+          fail('读仓库失败（' + res.status + '）：' + rel, res.status);
+        }
         return res.text;
       });
     }
@@ -226,8 +256,9 @@
   }
 
   function readFresh(site, rel) {
-    return apiFetch(contentsUrl(site, rel), { headers: { Accept: 'application/vnd.github.raw' } })
-      .then(function (res) {
+    return withRetry(function () {
+      return apiFetch(contentsUrl(site, rel), { headers: { Accept: 'application/vnd.github.raw' } });
+    }).then(function (res) {
         if (res.status === 404) return null;
         if (!res.ok) fail('读仓库失败（' + res.status + '）：' + rel, res.status);
         return res.text;
@@ -236,8 +267,9 @@
 
   /** 读一个文件的 sha + 内容（写之前要拿 sha） */
   function readMeta(site, rel) {
-    return apiFetch(contentsUrl(site, rel), { headers: { Accept: 'application/vnd.github+json' } })
-      .then(function (res) {
+    return withRetry(function () {
+      return apiFetch(contentsUrl(site, rel), { headers: { Accept: 'application/vnd.github+json' } });
+    }).then(function (res) {
         if (res.status === 404) return null;
         if (!res.ok) fail('读仓库失败（' + res.status + '）：' + rel, res.status);
         var meta = res.json || {};
@@ -259,8 +291,9 @@
 
   /** 列目录：返回 [{name, type, size, sha}]，目录不存在 → [] */
   function listDir(site, dir) {
-    return apiFetch(contentsUrl(site, dir), { headers: { Accept: 'application/vnd.github+json' } })
-      .then(function (res) {
+    return withRetry(function () {
+      return apiFetch(contentsUrl(site, dir), { headers: { Accept: 'application/vnd.github+json' } });
+    }).then(function (res) {
         if (res.status === 404) return [];
         if (!res.ok) fail('列目录失败（' + res.status + '）：' + dir, res.status);
         return Array.isArray(res.json) ? res.json : [];
