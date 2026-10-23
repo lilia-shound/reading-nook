@@ -751,6 +751,21 @@ function start() {
   store.ensureDirs();
   const config = store.readConfig();
   const port = Number(process.env.PORT || config.port || 8123);
+
+  // ---------------------------------------------------------- 本地镜像
+  // 读走本地（解一次不到 1 毫秒），后台每 20 秒跟远端对齐一次。
+  // 仓库仍然是唯一事实来源 —— 写还是「GET 远端最新那份 → 改 → PUT」，
+  // 镜像只是读的缓存，不会拿它当基底。
+  try {
+    const gh = require('./lib/ghbackend');
+    if (gh && gh.name === 'github') {
+      gh.enableMirror();
+      gh.startMirrorRefresh(20000);
+    }
+  } catch (e) {
+    console.error('[server] 本地镜像开不起来（不影响能不能用）：' + e.message);
+  }
+
   const server = createServer();
   server.listen(port, '0.0.0.0', () => {
     const nets = require('os').networkInterfaces();

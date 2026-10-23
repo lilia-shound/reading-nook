@@ -21,7 +21,7 @@ function ok(name, cond, extra) {
   else { fail++; console.log('  FAIL  ' + name + (extra ? '  → ' + extra : '')); }
 }
 
-function get(url) {
+function getOnce(url) {
   return new Promise((resolve, reject) => {
     https.get(url, { headers: { 'User-Agent': 'nook-check' } }, (res) => {
       const cs = [];
@@ -32,6 +32,24 @@ function get(url) {
         else { const e = new Error('HTTP ' + res.statusCode); e.status = res.statusCode; reject(e); }
       });
     }).on('error', reject);
+  });
+}
+
+/**
+ * 网络层会抖 —— 实测这台机器上偶尔会**连续一两分钟**连不上 raw.githubusercontent.com
+ * （表现是 ECONNRESET / UND_ERR_CONNECT_TIMEOUT）。
+ * 那不是代码坏了，是网络在断。这种时候重试几次就好了，
+ * 不重试的话测试会「红」得毫无意义，还容易让人以为改坏了什么。
+ */
+function get(url, times) {
+  const n = times === undefined ? 4 : times;
+  return getOnce(url).catch((e) => {
+    const st = e && e.status;
+    const net = st === undefined || st === 0 || st >= 500;
+    if (net && n > 1) {
+      return new Promise((r) => setTimeout(r, 800 * (5 - n))).then(() => get(url, n - 1));
+    }
+    throw e;
   });
 }
 
@@ -63,11 +81,19 @@ function passcode() {
 
   console.log('');
   console.log('=== 该藏起来的没推上去 ===');
-  for (const p of ['data/.local.json.enc', 'data/logs/deepseek.json.enc', 'data/tunnel.json.enc']) {
+  for (const p of ['data/.local.json.enc', 'data/logs/deepseek.json.enc']) {
     let exists = true;
     try { await get(RAW + p); } catch (e) { if (e.status === 404) exists = false; }
     ok(p + ' 不在仓库里', !exists);
   }
+  // 隧道地址**是要在仓库里的**（静态版靠它找到「改走家里电脑代写」那条路），
+  // 但必须是密文 —— 里面是那个隧道域名。
+  let tunnelBlob = '';
+  let tunnelThere = true;
+  try { tunnelBlob = await get(RAW + 'data/tunnel.json.enc'); } catch (e) { if (e.status === 404) tunnelThere = false; }
+  ok('data/tunnel.json.enc 在仓库里（静态版要靠它找代写通道）', tunnelThere);
+  ok('data/tunnel.json.enc 是密文', tunnelThere && /"ct"\s*:/.test(tunnelBlob));
+  ok('data/tunnel.json.enc 看不到隧道域名', tunnelThere && tunnelBlob.indexOf('trycloudflare.com') < 0);
 
   console.log('');
   console.log('=== 密码对了能解开 ===');
@@ -109,7 +135,8 @@ function passcode() {
   console.log('=== 批注也在 ===');
   const annoBlob = await get(RAW + 'data/books/' + gudao.id + '/annotations/5.json.enc');
   const annos = await Vault.decryptJson(key, annoBlob);
-  ok('第 5 章有 3 条批注', Array.isArray(annos) && annos.length === 3, 'n=' + (annos || []).length);
+  // 条数**不写死** —— 姜来和云端姜去一直在加，写死就会某天突然「失败」
+  ok('第 5 章有批注', Array.isArray(annos) && annos.length >= 3, 'n=' + (annos || []).length);
   ok('每条都有姜去的回应', (annos || []).every((a) => a.replies && a.replies.length),
     JSON.stringify((annos || []).map((a) => (a.replies || []).length)));
 

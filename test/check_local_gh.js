@@ -48,12 +48,12 @@ function api(p, opt) {
   });
 }
 
-/** 网络层会抖，重试几次 */
+/** 网络层会抖（这台机器上偶尔会断一两分钟），重试得有点耐心 */
 function retry(fn, times) {
-  const n = times || 3;
+  const n = times || 6;
   return fn().catch((e) => {
     if (n <= 1) throw e;
-    return new Promise((r) => setTimeout(r, 700)).then(() => retry(fn, n - 1));
+    return new Promise((r) => setTimeout(r, 1200)).then(() => retry(fn, n - 1));
   });
 }
 
@@ -99,7 +99,9 @@ function gh(method, apiPath, body) {
   ok('是中文', /[\u4e00-\u9fa5]/.test(ch.paragraphs.join('')));
 
   const annos = await api('/api/books/' + BOOK + '/annotations/5');
-  ok('第 5 章 3 条批注', (annos.annotations || []).length === 3, 'n=' + (annos.annotations || []).length);
+  // 条数**不写死** —— 姜来和云端姜去一直在加，写死就会某天突然「失败」
+  const baseCount = (annos.annotations || []).length;
+  ok('第 5 章有批注', baseCount >= 3, 'n=' + baseCount);
 
   console.log('');
   console.log('=== 本机划一道 → 仓库里有没有 ===');
@@ -149,7 +151,8 @@ function gh(method, apiPath, body) {
   console.log('');
   console.log('=== 她的原数据没被动过 ===');
   const still = await api('/api/books/' + BOOK + '/annotations/5');
-  ok('第 5 章还是 3 条', (still.annotations || []).length === 3, 'n=' + (still.annotations || []).length);
+  ok('第 5 章批注条数没变', (still.annotations || []).length === baseCount,
+    '之前 ' + baseCount + '，现在 ' + (still.annotations || []).length);
   ok('id 没变', (still.annotations || [])[0] && (still.annotations[0].id === 'a_mvhyfuroua9xxk' ||
     (still.annotations[0].id || '').startsWith('a_')));
 

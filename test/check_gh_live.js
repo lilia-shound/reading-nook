@@ -67,12 +67,16 @@ function liveFetch(url, init) {
   });
 }
 
-/** 网络层偶尔抽风（fetch failed），重试几次 */
+/**
+ * 网络层偶尔抽风（fetch failed）。
+ * 实测这台机器上偶尔会**连续一两分钟**连不上 GitHub —— 那不是代码坏了，
+ * 是网络在断。重试得有点耐心，不然测试会「红」得毫无意义。
+ */
 function retry(fn, times) {
-  const n = times || 3;
+  const n = times || 6;
   return fn().catch((e) => {
     if (n <= 1) throw e;
-    return new Promise((r) => setTimeout(r, 800)).then(() => retry(fn, n - 1));
+    return new Promise((r) => setTimeout(r, 1200)).then(() => retry(fn, n - 1));
   });
 }
 
@@ -215,7 +219,9 @@ async function cleanScratch(bookId) {
   console.log('');
   console.log('=== 姜去回过的话（蓝色气泡的数据） ===');
   const annos = await api.handle('/api/books/' + encodeURIComponent(gudao.id) + '/annotations/5');
-  eq('第 5 章 3 条批注', (annos.annotations || []).length, 3);
+  // 条数**不写死** —— 姜来和云端姜去一直在加，写死就会某天突然「失败」
+  const baseCount = (annos.annotations || []).length;
+  ok('第 5 章有批注', baseCount >= 3, 'n=' + baseCount);
   ok('每条都有姜去的回应', (annos.annotations || []).every((a) => a.replies && a.replies.length),
     JSON.stringify((annos.annotations || []).map((a) => (a.replies || []).length)));
   ok('回应是 ai 说的', (annos.annotations || []).some((a) => a.replies && a.replies.some((r) => r.who === 'ai')));
@@ -313,7 +319,7 @@ async function cleanScratch(bookId) {
   console.log('');
   console.log('=== 她的原数据没被动过 ===');
   const still = await api.handle('/api/books/' + encodeURIComponent(gudao.id) + '/annotations/5');
-  eq('第 5 章还是 3 条', (still.annotations || []).length, 3);
+  eq('第 5 章批注条数没变', (still.annotations || []).length, baseCount);
 
   console.log('');
   console.log(failed ? 'ALL FAIL' : 'ALL PASS');

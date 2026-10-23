@@ -120,7 +120,8 @@ async function collectData() {
   const key = await Vault.deriveKey(passcode, site.kdf.salt, site.kdf.iter);
 
   const SKIP_TOP = ['.local.json', 'tunnel.json'];
-  const SKIP_DIRS = ['logs'];
+  // .mirror 是**本地镜像**（读缓存，里面是密文）—— 绝对不能推上去
+  const SKIP_DIRS = ['logs', '.mirror'];
 
   const files = walk(path.join(ROOT, 'data'), '', []);
   const entries = [];
@@ -180,7 +181,9 @@ async function collectSite() {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);
   }
-  for (const name of ['lib/ghbackend.js', 'lib/vfs.js', 'lib/store.js', 'lib/docs.js',
+  // lib/vault-node.js 必须一起推 —— ghbackend.js 要 require 它，
+  // 少推一个，云端姜去那台的 gh-store.js 就直接崩。
+  for (const name of ['lib/ghbackend.js', 'lib/vfs.js', 'lib/store.js', 'lib/docs.js', 'lib/vault-node.js',
     'server.js', 'nook.js', 'package.json']) {
     const full = path.join(ROOT, name);
     if (fs.existsSync(full)) push(name, full);

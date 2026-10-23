@@ -59,6 +59,21 @@ console.log('  仓库:', owner + '/' + repo + '@' + branch);
 console.log('  盐  :', salt);
 console.log('  迭代:', Vault.ITERATIONS);
 
+// 把「电脑那版现在的局域网地址」也带上 —— 静态版写失败时要给她一个能点的链接，
+// 而那个链接要是靠网络去读 data/endpoints.json.enc，在公司网络下正好读不到。
+// 内联一份，零网络依赖；实时那份（换 Wi-Fi 自动更新）在静态版里优先用。
+try {
+  const vfs = require('../lib/vfs');
+  const ep = JSON.parse(vfs.readFileSync('endpoints.json'));
+  if (ep && ep.lan) {
+    site.fallbackLan = ep.lan;
+    console.log('  兜底局域网地址:', ep.lan, '（写失败时直接给链接）');
+  }
+} catch (e) {
+  console.log('  （没读到局域网地址，跳过兜底）');
+}
+fs.writeFileSync(FILE, JSON.stringify(site, null, 2) + '\n', 'utf8');
+
 // 同一份配置再内联成一份脚本 —— 让浏览器**启动时一个网络请求都不用发**。
 // 起因：site.json 放在 Pages 上，而 Pages 的 CDN 会抖（实测 403 / ECONNRESET / 超时）。
 // 一抖 → 读不到 site.json → 连登录框都出不来 → 整个站点打不开。

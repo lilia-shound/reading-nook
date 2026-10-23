@@ -371,52 +371,6 @@ node test/check_docs.js     # 资料库（front-matter / 路径穿越边界）
 node test/check_android.js  # 安卓路径（平台判定 / 策略 / 工具条位置）
 ```
 
-## 🔴 数据事故与恢复手册（写之前请先读这一节）
-
-### 为什么这个仓库的数据几乎不会真的丢
-**每条批注 = 一个 commit。** 划一次线写一个 commit，回一条回应再写一个 commit —— 于是
-**整个共读史天然就是一份版本历史**，而且这份历史在 GitHub 上，不在任何人的内存里、不在任何一台会关机的电脑上。
-10-23 凌晨就有一次现成的证明（见下）。
-
-### 数据长什么样
-- `data/books/<bookId>/annotations/<chapter>.json` 是**密文**，仓库里存的是 `.enc` 后的文件
-- 格式：`{"v":1,"alg":"AES-GCM","iv":"<base64>","ct":"<base64>"}`（**一行 JSON 字符串**）
-- 密钥由 `data/config.json` 里的口令 + `public/site.json` 里的 salt 派生（PBKDF2）
-- **解密的唯一实现是 `public/vault.js`** —— 别在别处再写一份
-
-### 写操作铁律（违反了真的会丢数据）
-1. **绝不手改仓库里的 `.enc`** —— 用 `tools/gh-store.js reply`，它负责加密 + 写 + 校验
-2. **多条必须串行** —— GitHub 的 PUT 是 last-write-wins，**并发会互相覆盖**
-3. **写之前自检** —— 加密完**立刻解回来**，能解开、条数对得上，才允许 PUT
-   （合并逻辑 `updateFileSync` 只防"并发覆盖"，**防不住"写进去的内容格式本身是坏的"**）
-4. **probe / 测试永远不要写活数据路径** —— 拿 `data/_probe/` 或单独的小仓库
-
-### 真出事了怎么救（10-23 实测过）
-```bash
-# 1) 找出最后一个好版本，按 path 查历史
-curl -H "Authorization: Bearer $TOKEN" \
-  "https://api.github.com/repos/<owner>/<repo>/commits?path=<坏文件路径>&per_page=20"
-
-# 2) 取回好 blob 并解密验证
-curl -H "Authorization: Bearer $TOKEN" \
-  "https://api.github.com/repos/<owner>/<repo>/contents/<路径>?ref=<好版本 commit>"   # → base64 内容 + blob sha
-
-# 3) 写回去 —— ★ 必须带「当前(坏)版本的 sha」+「好内容的 base64」
-curl -X PUT -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/<owner>/<repo>/contents/<路径>" \
-  -d '{"message":"恢复","content":"<好内容 base64>","branch":"main","sha":"<当前坏版本 sha>"}'
-
-# 4) 重新下载解密，确认条数对得上
-```
-**★ 坑：Contents API 不接受"只给旧 blob sha"**（会报 `"content" wasn't supplied`），**必须自己把内容带上去**。
-
-### 10-23 凌晨的真实事故（留个纪念）
-- `03:00:51` 的 commit **`3257ee56fb`「probe: 跨域写入测试（不改内容）」** 把 `annotations/6.json.enc` 从 **14,741 字节**写成 **343 字节的非 JSON 二进制**
-- 后果：静态版（Pages）和本地版（Node）读同一个 repo → **两边批注同时消失**；连没坏的第 5 章也一起消失，因为加载目录时坏文件解密抛异常，**整个 load 挂了**
-- 恢复：从 commit `5a195ca054` 取回好 blob（`54b04183937057b233264f3200f9506dbe669ddf`）→ 写回 → **8 条批注 / 8 条回应一条不缺**
-- **★ 教训一：版本历史不是备份的替代品，但它是备份的最后一层保险。**
-- **★ 教训二：「不改内容」的测试最容易改坏内容 —— 因为它走的是同一条写入路径。**
-
 ## 致谢
 
 思路与数据契约来自 [zzyyksl/reading-nook](https://github.com/zzyyksl/reading-nook)（MIT 协议）。

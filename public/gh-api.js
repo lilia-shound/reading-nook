@@ -395,6 +395,7 @@
    */
   async function writeFailBoth(err) {
     var lan = '';
+    // ① 实时的（data/endpoints.json.enc）—— 换 Wi-Fi 后由那台电脑自动更新
     try {
       var enc = await readText(site, 'data/endpoints.json.enc', true);
       if (enc) {
@@ -403,19 +404,30 @@
           lan = '\n\n👉 点这个用电脑那版划线（地址自动更新，不用你记）：\n' + ep.lan;
         }
       }
-    } catch (e2) { /* 它没公布就算了 */ }
+    } catch (e2) { /* 读不到就用内联那份 */ }
+    // ② 内联的兜底（site.json 的 fallbackLan）—— 零网络依赖，一定出得来
+    if (!lan && S.site && S.site.fallbackLan) {
+      lan = '\n\n👉 点这个用电脑那版划线（地址自动更新，不用你记）：\n' + S.site.fallbackLan;
+    }
 
-    // 401 = 没连 GitHub（没粘 token）；别的 = 路不通
+    // **带上原始错误** —— 「连不上」太笼统，看不出到底是配额、跨域、还是被什么挡了
+    var raw = '';
+    try {
+      raw = '\n\n[原始错误] ' + ((err && err.status) ? ('HTTP ' + err.status + ' ') : '') +
+        ((err && err.message) ? err.message : '未知');
+    } catch (e3) { /* ignore */ }
+
+    // 401 = 没连 GitHub（没粘 token）；别的 = 路不通或被挡
     if (err && err.status === 401) {
       fail('还没连上 GitHub：划线要先粘一次 GitHub token（设置 → GitHub 连接）'
         + lan
-        + '\n· 点上面的地址 → 电脑那版不需要 token（密码就行），也能划线', 401);
+        + '\n· 点上面的地址 → 电脑那版不需要 token（密码就行），也能划线' + raw, 401);
     }
-    fail('写不进仓库：GitHub 现在连不上（可能是你当前网络的问题），'
-      + '手机/流量访问 GitHub 的接口常常被卡住 —— 不是数据坏了，是路不通。'
+    fail('写不进仓库：可能是网络或浏览器把 GitHub 的接口挡住了 —— 不是数据坏了。'
       + lan
-      + '\n· 点上面的地址 → 写经由你的电脑，一定能写进去'
-      + '\n· 或者换个网络（连 Wi-Fi 而不是流量）再试一次', 503);
+      + '\n· 点上面的地址 → 同一台电脑上的那版，写是本机转发，不跨域，最稳'
+      + '\n· 或者用无痕窗口试一次（有些扩展会挡 GitHub 的接口）'
+      + '\n· 或者换个网络（连 Wi-Fi 而不是流量）再试一次' + raw, 503);
   }
 
   // ------------------------------------------------------------ 写

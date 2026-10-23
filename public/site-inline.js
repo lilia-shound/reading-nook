@@ -29,5 +29,6 @@ window.NOOK_SITE = {
     "settings-server",
     "ai-auto"
   ],
-  "updatedAt": "2026-10-22T11:19:19.634Z"
+  "updatedAt": "2026-10-23T06:01:24.180Z",
+  "fallbackLan": "http://192.168.2.7:8231"
 };
