@@ -386,13 +386,29 @@
     }
   }
 
-  /** 两条路都不通 —— 给人话 */
-  function writeFailBoth(err) {
-    fail('写不进仓库：GitHub 现在连不上（可能是你当前网络的问题），'
-      + '家里电脑那条路也没通。\n'
-      + '· 连着家里的 Wi-Fi 时，用电脑上的那版划线最稳\n'
-      + '· 或者换个网络再试一次\n'
-      + '（' + ((err && err.message) || '不知道怎么了') + '）', 503);
+  /**
+   * 两条路都不通 —— 给人话。
+   *
+   * 并且**把「电脑那版的地址」读出来给她**：
+   * 那台电脑自己在仓库里公布它现在的局域网地址（data/endpoints.json.enc），
+   * 她在公司/家里换 Wi-Fi 也不用记 —— 顶层跳转（不是 fetch），不受混合内容限制。
+   */
+  async function writeFailBoth(err) {
+    var lan = '';
+    try {
+      var enc = await readText(site, 'data/endpoints.json.enc', true);
+      if (enc) {
+        var ep = JSON.parse(await vault().decryptText(needKey(), enc));
+        if (ep && ep.lan) {
+          lan = '\n\n👉 点这个用电脑那版划线（地址自动更新，不用你记）：\n' + ep.lan;
+        }
+      }
+    } catch (e2) { /* 它没公布就算了 */ }
+    fail('写不进仓库：GitHub 现在连不上（可能是你当前网络的问题），\n'
+      + '手机上访问 GitHub 的接口常常被卡住 —— 这不是数据坏了，是路不通。'
+      + lan
+      + '\n· 点上面的地址 → 写经由你的电脑，一定能写进去'
+      + '\n· 或者换个网络（连 Wi-Fi 而不是流量）再试一次', 503);
   }
 
   // ------------------------------------------------------------ 写
@@ -1019,7 +1035,7 @@
           // 写不进仓库 → 可能是她当前网络连不上 GitHub → 改走家里电脑代写
           var via = await tryTunnel(site, '/api/books/' + aid + '/annotations/' + ach, 'POST', payload);
           if (via && via.annotation) return via;
-          writeFailBoth(e);
+          await writeFailBoth(e);
         }
       }
       fail('这个接口只接受 GET 或 POST', 405);
@@ -1052,7 +1068,7 @@
           // 同划线：GitHub 连不上 → 改走家里电脑代写
           var via2 = await tryTunnel(site, '/api/books/' + pid + '/progress', 'POST', patch);
           if (via2 && via2.progress) return via2;
-          writeFailBoth(e);
+          await writeFailBoth(e);
         }
       }
       fail('这个接口只接受 GET 或 POST', 405);

@@ -709,6 +709,44 @@ function createServer() {
   });
 }
 
+// ---------------------------------------------------------- 公布局域网地址
+// 她在公司、家里各有一个 Wi-Fi，局域网 IP 段不一样（公司 192.168.2.x，
+// 家里 192.168.0.x）—— **她不可能记住两个地址**。
+// 所以让这台电脑自己把「我在哪」写进仓库，静态版在写失败时读出来给她一个可点的链接。
+// 换 Wi-Fi 了也会自动跟上。
+
+function publishEndpoints() {
+  try {
+    const os = require('os');
+    const nets = os.networkInterfaces();
+    const lan = [];
+    for (const name of Object.keys(nets)) {
+      for (const a of nets[name] || []) {
+        if (a.family === 'IPv4' && !a.internal) lan.push(a.address);
+      }
+    }
+    if (!lan.length) return;
+    const port = store.readConfig().port || 8231;
+    const newLan = 'http://' + lan[0] + ':' + port;
+    const vfs = require('./lib/vfs');
+    // 没换 Wi-Fi 就别写（每 5 分钟一个 commit 太吵）
+    let cur = null;
+    try { cur = JSON.parse(vfs.readFileSync('endpoints.json')); } catch (e) { /* 还没有 */ }
+    if (cur && cur.lan === newLan) return;
+    vfs.updateFileSync('endpoints.json', function (old) {
+      const c = (old && typeof old === 'object' && !Array.isArray(old)) ? old : {};
+      c.lan = newLan;
+      c.lans = lan.map((a) => 'http://' + a + ':' + port);
+      c.ts = Date.now();
+      return c;
+    }, {});
+    console.log('[endpoints] 局域网地址已公布到仓库: ' + newLan);
+  } catch (e) {
+    // 公布失败不影响服务本身
+    console.error('[endpoints] 公布局域网地址失败: ' + e.message);
+  }
+}
+
 function start() {
   store.ensureDirs();
   const config = store.readConfig();
@@ -731,6 +769,9 @@ function start() {
     console.log('  模式:   ' + (config.ai_mode || 'manual'));
     console.log('  ─────────────────────────────────');
     console.log('');
+    // 把「我在哪个 Wi-Fi、局域网地址是多少」公布到仓库 —— 她不用记地址
+    publishEndpoints();
+    setInterval(publishEndpoints, 5 * 60 * 1000);
   });
   return server;
 }
