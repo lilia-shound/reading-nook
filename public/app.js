@@ -422,13 +422,27 @@
   // ------------------------------------------------- 静态版（GitHub 后端）
 
   /**
-   * 看 site.json 决定走本地 API 还是 GitHub。
-   * 本地跑的时候 server.js 会把 /site.json 拦下来返回 {"mode":"local"}，
-   * 所以同一份 public/ 在本地和在公网上都跑得起来，不用维护两套。
+   * 决定走哪条数据路：
+   *   - **本地模式**：本机服务（8231）把仓库里的密文解开后给明文 → 浏览器不用管加密
+   *   - **静态模式**：浏览器自己去 GitHub 读密文、自己解密
+   *
+   * ⚠️ 判据必须是「同源的本机服务在不在」，**不能只看 site.json**：
+   *   `http://192.168.x.x:8231` 不是安全上下文，**浏览器不给 WebCrypto**，
+   *   浏览器自己解不开密文 → 登录直接失败。
+   *   所以局域网版必须走本机服务（明文 API），静态模式只留给 https 的公网版。
    */
   async function detectMode() {
+    // ① 先问「同源有没有本机服务」（相对路径，不跨域，不用发到外面去）
     try {
-      // 内联的站点配置优先（public/site-inline.js）→ 启动时不用发网络请求
+      const probe = await fetch('api/health', { cache: 'no-store' });
+      if (probe.ok) {
+        // 有本机服务 → 本地模式：数据由它解开给你
+        return;
+      }
+    } catch (e) { /* 没有本机服务 → 往下 */ }
+
+    // ② 没有本机服务 → 静态版（https 的公网版）
+    try {
       let site = window.NOOK_SITE || null;
       if (!site) {
         const res = await fetch('site.json', { cache: 'no-store' });

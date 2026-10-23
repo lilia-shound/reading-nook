@@ -56,7 +56,10 @@
   function subtle() {
     var c = (typeof globalThis !== 'undefined' ? globalThis.crypto : undefined);
     if (!c || !c.subtle) {
-      throw new Error('vault: 这个环境没有 WebCrypto（需要 HTTPS 或 localhost）');
+      throw new Error('vault: 这个环境没有加密能力（浏览器的 WebCrypto 只在 HTTPS 或 localhost 下有）。\n'
+        + '· 用 http://192.168.x.x:8231 这种局域网地址时，**数据应该由本机服务解开给你**，\n'
+        + '  不该由浏览器自己解 —— 请刷新一下页面\n'
+        + '· 公网版要用 https 的那个网址');
     }
     return c.subtle;
   }
